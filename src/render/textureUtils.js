@@ -1,11 +1,11 @@
-const ctx = document.createElement("canvas").getContext("2d")
 
-const setCanvasSize = (width, height) =>{
+
+const setCanvasSize = (ctx, width, height) =>{
     ctx.canvas.width  = width
     ctx.canvas.height = height
 }
   
-const makeTexture = () => {
+const makeTexture = (gl, ctx) => {
     const tex = gl.createTexture()
     gl.bindTexture(gl.TEXTURE_2D, tex)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas)
@@ -20,18 +20,18 @@ const makeStripeTexture =  options => {
     var height = options.height || 2
     var color1 = options.color1 || "rgba(0,0,0,0.1)"
     var color2 = options.color2 || "rgba(0,1,1,0.5)"
-  
-    setCanvasSize(width, height);
+    const ctx = document.createElement("canvas").getContext("2d")
+    setCanvasSize(ctx, width, height);
   
     ctx.fillStyle = color1 
     ctx.fillRect(0, 0, width, height)
     ctx.fillStyle = color2 
     ctx.fillRect(0, 0, width, height / 2)
   
-    return makeTexture()
+    return makeTexture(gl, ctx)
 }
 
-const makeTextureFromSvgXml = (xml, options = {}) =>{
+const makeTextureFromSvgXml = (gl, xml, options = {}) =>{
     const img = document.createElement('img')
     var svg64 = btoa(xml)
     var b64Start = 'data:image/svg+xml;base64,'
@@ -43,14 +43,16 @@ const makeTextureFromSvgXml = (xml, options = {}) =>{
     const height = options.height || 100
     const x = options.x || 0
     const y = options.y || 0
-    setCanvasSize(width, height)
+
+    const ctx = document.createElement("canvas").getContext("2d")
+    setCanvasSize(ctx, width, height)
     
     ctx.drawImage(img, x, y, width, height)
     ctx.fillStyle = "rgba(0,0,0,0.1)"
     ctx.fillRect(0, 0, width, height )
-    return makeTexture()
+    return makeTexture(gl, ctx)
 }
-const setTextureUnits = (textureInfos) => textureInfos.forEach(info =>{
+const setTextureUnits = (gl, textureInfos) => textureInfos.forEach(info =>{
     gl.activeTexture(gl.TEXTURE0 + info.texUnitNum);
     gl.bindTexture(gl.TEXTURE_2D, info.texture);
 })

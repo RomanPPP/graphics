@@ -1,13 +1,9 @@
 
-const {LinedBoxGeometry, createBoxGeometry, axisLines} = require('./primitives')
-const {ProgrammInfo} = require('./programm')
-const {createIndicesBuffer, BufferInfo, DynamicBufferInfo} = require('./buffersInfo')
 
-const linedBox = LinedBoxGeometry()
-const box = createBoxGeometry()
+import {createIndicesBuffer, BufferInfo, DynamicBufferInfo} from './buffersInfo'
 
 
-const floatAttribSetter = (bufferInfo, divisor) =>{
+const floatAttribSetter = (gl, bufferInfo, divisor) =>{
     const {numComponents, type, buffer, location, numAttributes, stride, offset} = bufferInfo
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
     for(let i = 0; i < numAttributes; i++){
@@ -18,7 +14,7 @@ const floatAttribSetter = (bufferInfo, divisor) =>{
         if(divisor != undefined)gl.vertexAttribDivisor(location + i, divisor);        
     }
 }
-const intAttribSetter = (bufferInfo, divisor) =>{
+const intAttribSetter = (gl, bufferInfo, divisor) =>{
     const {numComponents, type, buffer, location, numAttributes, stride, offset} = bufferInfo
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
     for(let i = 0; i < numAttributes; i++){
@@ -29,27 +25,27 @@ const intAttribSetter = (bufferInfo, divisor) =>{
     }
 }
 const attribTypeMap = {}
-attribTypeMap[gl.BYTE] = intAttribSetter
-attribTypeMap[gl.FLOAT] = floatAttribSetter
-attribTypeMap[gl.UNSIGNED_BYTE] =  intAttribSetter
-attribTypeMap[gl.INT] = intAttribSetter
-attribTypeMap[gl.UNSIGNED_INT] =  intAttribSetter
-attribTypeMap[gl.SHORT] =  intAttribSetter
-attribTypeMap[gl.UNSIGNED_SHORT] =  intAttribSetter
+attribTypeMap[0x1400] = intAttribSetter
+attribTypeMap[0x1406] = floatAttribSetter
+attribTypeMap[0x1401] =  intAttribSetter
+attribTypeMap[0x1404] = intAttribSetter
+attribTypeMap[0x1405] =  intAttribSetter
+attribTypeMap[0x1402] =  intAttribSetter
+attribTypeMap[0x1403] =  intAttribSetter
 
-const setAttributes = (bufferInfo,  divisor) =>{
+const setAttributes = (gl, bufferInfo,  divisor) =>{
     const {type} = bufferInfo
     const setter = attribTypeMap[type]
-    setter(bufferInfo, divisor)
+    setter(gl, bufferInfo, divisor)
 }
-const buffersInfoFromPrimitive = (primitive) =>{
+const buffersInfoFromPrimitive = (gl, primitive) =>{
     const buffersInfo = {attributes : {}}
     
     Object.keys(primitive.attributes).forEach(attributeName => {
-            buffersInfo.attributes[attributeName] = new BufferInfo(primitive.attributes[attributeName])
-            setAttributes(buffersInfo.attributes[attributeName])
+            buffersInfo.attributes[attributeName] = new BufferInfo(gl, primitive.attributes[attributeName])
+            setAttributes(gl, buffersInfo.attributes[attributeName])
         })
-    if(primitive.indices) buffersInfo.indices = createIndicesBuffer(primitive.indices)
+    if(primitive.indices) buffersInfo.indices = createIndicesBuffer(gl, primitive.indices)
     buffersInfo.numElements = primitive.numElements || primitive.indices.length
    
     buffersInfo.type = primitive.type || gl.TRIANGLES 
@@ -58,35 +54,44 @@ const buffersInfoFromPrimitive = (primitive) =>{
     
 }
 
-
-const { render, renderInstances} = require('./render')
-const defaultShaders = require('./shaders/defaultShader')
-const defaultTextShaders = require('./shaders/textureShader')
-const defaultProgram = new ProgrammInfo(defaultShaders.vert, defaultShaders.frag)
-const defaultTextProgram = new ProgrammInfo(defaultTextShaders.vert, defaultTextShaders.frag)
-
 class PrimitiveRenderInfo{
-    constructor(primitive, programInfo){
+    constructor(primitive){
         this.vao = null
         this.buffersInfo = null
-        this.programInfo = programInfo || defaultProgram
+        this.programInfo = null
         this.primitive = primitive
-        
+        this.gl = null
+        this.drawer = null
+    }
+    setContext(gl){
+        this.gl = gl
+        return this
+    }
+    setDrawer(drawer){
+        this.drawer = drawer
+        return this
+    }
+    setProgramInfo(programInfo){
+        this.programInfo = programInfo
+        return this
     }
     bindBuffers(){
+        const gl = this.gl
         if(this.primitive){
             this.vao = gl.createVertexArray()
             gl.bindVertexArray(this.vao)
-            this.buffersInfo = buffersInfoFromPrimitive(this.primitive)
+            this.buffersInfo = buffersInfoFromPrimitive(gl, this.primitive)
             gl.bindVertexArray(null)
         }
-        
+        console.log(this.buffersInfo)
+        return this
     }
-    bindInstancingBuffer(maxNumInstances = 10){
+    bindInstancingBuffer( maxNumInstances = 10){
+        const gl = this.gl
         if(!this.vao) throw new Error('No vao!')
         
         this.instancingBuffersInfo = {
-            i_matrix : new DynamicBufferInfo({
+            i_matrix : new DynamicBufferInfo(gl, {
                 stride : 64,
                 byteLength : 64 * maxNumInstances,
                 type : gl.FLOAT,
@@ -96,53 +101,27 @@ class PrimitiveRenderInfo{
             }, this.vao)
         }
         gl.bindVertexArray(this.vao)
-        setAttributes(this.instancingBuffersInfo.i_matrix, 1)
+        setAttributes(gl, this.instancingBuffersInfo.i_matrix, 1)
         gl.bindVertexArray(null)
+        return this
     }
-    draw(uniforms, cameraMatrix){
-        render(this, uniforms, cameraMatrix)
+    draw( uniforms, cameraMatrix){
+        const gl = this.gl
+        this.drawer.draw(this, uniforms, cameraMatrix)
+        return this
     }
     setInstancingData(data){
+        const gl = this.gl
         gl.bindVertexArray(this.vao)
         this.instancingBuffersInfo.i_matrix.update(data)
         gl.bindVertexArray(null)
+        return this
     }
-    drawInstanced(uniforms, cameraMatrix, numInstances){
-        renderInstances(this, uniforms, cameraMatrix, numInstances)
-    }
-}
-
-const instancingShader = require('./shaders/defaultInstanceShader')
-const instancingProgramInfo = new ProgrammInfo(instancingShader.vert, instancingShader.frag)
-class InstancedRenderInfo{
-    constructor(geometry, maxNumInstances){
-        this.vao = gl.createVertexArray()
-        gl.bindVertexArray(this.vao)
-        this.buffersInfo = createBuffersInfo(geometry)
-        this.instancingBuffersInfo = {
-            i_matrix : new DynamicBufferInfo({
-                bytesPerInstance : 64,
-                byteLength : 64 * maxNumInstances,
-                type : gl.FLOAT,
-                numAttributes : 4,
-                numComponents : 4,
-                location : 2
-            }, this.vao),
-            numElements : this.buffersInfo.numElements
-        }
-        setAttributes(this.instancingBuffersInfo.i_matrix, 1)
-        gl.bindVertexArray(null)
-        this.programInfo = instancingProgramInfo
-    }
-    draw(uniforms, numInstances, cameraMatrix){
-        renderFunc(this, uniforms,numInstances, cameraMatrix)
+    drawInstanced( uniforms, cameraMatrix, numInstances){
+        const gl = this.gl
+        this.drawer.drawInstanced(gl, this, uniforms, cameraMatrix, numInstances)
+        return this
     }
 }
 
-
-
-
-
-
-
-module.exports = {PrimitiveRenderInfo}
+export default PrimitiveRenderInfo

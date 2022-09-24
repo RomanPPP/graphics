@@ -155,74 +155,35 @@ function createUniformSetters(gl, program){
     }
     return uniformSetters
 }
-function createAttribSetters(gl, program){
-    const setters = {}
-    
-    const numAtrribs = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES)
-    
-    
-    for(let i = 0; i < numAtrribs; i++){
-      const attribInfo = gl.getActiveAttrib(program,i)
-      
-      const location = gl.getAttribLocation(program,attribInfo.name)
-     
-      if(attribInfo.name[0] === "i"){
-          
-          setters[attribInfo.name] = createInstanceAttribSetter(gl,  location )
-          continue
-      }
-      setters[attribInfo.name] = function(bufferInfo){
- 
-        const {numComponents, type, buffer} = bufferInfo
-        gl.enableVertexAttribArray(location)
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-        gl.vertexAttribPointer(location, numComponents, type, false, 0,0)
-      }
-    }
-    
-    return setters
-}
-const createInstanceAttribSetter = (gl,  location) => (bufferInfo) =>
-    {
-        const size = 4
-        const {numComponents, type, buffer, bytesPerInstance} = bufferInfo
-        console.log(numComponents, type, bytesPerInstance)
-        const numAttribs = 4
-       // console.log(numComponents)
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-        for(let i = 0; i < numAttribs; i++){
-            const offset = size * numComponents * i
-            gl.enableVertexAttribArray(location + i)
-            gl.vertexAttribPointer(location + i, numComponents, type, false, bytesPerInstance, offset)
-            gl.vertexAttribDivisor(location + i, 1);
-            
-        } 
-    }
 
-
-
-
-
-
-
-
-
-
-class ProgrammInfo{
-    constructor(vs, fs, attribLocations){
+class ProgramInfo{
+    constructor(vs, fs){
         
         this.vs = vs
         this.fs = fs
         this.VAO = null
+        this.uniformSetters = null
+        this.vertexShader = null
+        this.fragmentShader = null
+        this.program = null
+        this.gl = null
+      
+    }
+    createUniformSetters(){
+        this.uniformSetters = createUniformSetters(this.gl, this.program)
+        return this
+    }
+    compileShaders(gl){
+        this.gl = gl
         this.vertexShader = gl.createShader(gl.VERTEX_SHADER)
-        gl.shaderSource(this.vertexShader, vs)
+        gl.shaderSource(this.vertexShader, this.vs)
         gl.compileShader(this.vertexShader)
         if (!gl.getShaderParameter(this.vertexShader, gl.COMPILE_STATUS)) {
             throw new Error(gl.getShaderInfoLog(this.vertexShader))
         }
 
         this.fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)
-        gl.shaderSource(this.fragmentShader, fs)
+        gl.shaderSource(this.fragmentShader, this.fs)
         gl.compileShader(this.fragmentShader)
         if (!gl.getShaderParameter(this.fragmentShader, gl.COMPILE_STATUS)) {
             throw new Error(gl.getShaderInfoLog(this.fragmentShader))
@@ -236,26 +197,19 @@ class ProgrammInfo{
         if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
             throw new Error(gl.getProgramInfoLog(this.program))
         }
-
-        
-        this.createUniformSetters()
-      
+        return this
     }
-    createUniformSetters(){
-        this.uniformSetters = createUniformSetters(gl, this.program)
-    }
-    
     setUniforms(uniforms){
-        
         Object.keys(uniforms).forEach(name=>{
             const setter = this.uniformSetters[name]
             if(setter) setter(uniforms[name])
         })
+        return this
     }
     
 }
 
 
 export {
-    expandedTypedArray, ProgrammInfo, getGLTypeForTypedArray
+    expandedTypedArray, ProgramInfo, getGLTypeForTypedArray
 }

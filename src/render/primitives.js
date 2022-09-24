@@ -1,4 +1,4 @@
-const {expandedTypedArray} = require( './programm.js')
+import {expandedTypedArray} from  './programInfo.js'
 
 const linedBoxIndices = new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0, // front
   0, 5, 5, 4, 4, 1, 1, 0, //bottom
@@ -68,8 +68,8 @@ function createBoxGeometry(_a = 1, _b = 1, _c = 1){
         indices.push(offset + 0, offset + 1, offset + 2);
         indices.push(offset + 0, offset + 2, offset + 3);
       }
-      len = positions.byteLength
-      texcoordBuffer = new Float32Array(
+      const len = positions.byteLength
+      const texcoordBuffer = new Float32Array(
         [
         // Front
         0.0,  0.0,
@@ -176,33 +176,6 @@ function createBoxGeometry(_a = 1, _b = 1, _c = 1){
 
 
 
-const LinedBoxGeometry = (a = 1, b = 1, c = 1) =>{
-  const geometry = createBoxGeometry(a, b, c)
-  geometry.indices = linedBoxIndices
-  geometry.type = gl.LINES
-  return geometry
+export {
+  createBoxGeometry
 }
-
-const axisLines = {
-  arrays : {
-      a_position: {
-      data : new Float32Array([0,0,0, 1,0,0, 0,1,0, 0,0,1]),
-      numComponents : 3,
-      location : 0,
-      byteLength : 4 * 3 * 4,
-      }
-  },
-  indices: new Uint16Array([0,1, 0,2, 0,3]),
-  type : gl.LINES
-};
-
-
-const PointPrimitive = {
-  data : new Float32Array([0,0,0]),
-  numComponents : 3,
-  componentType : 5126,
-  location : 0
-
-}
-
-module.exports = {createBoxGeometry , LinedBoxGeometry, axisLines, PointPrimitive}

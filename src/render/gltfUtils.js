@@ -1,3 +1,7 @@
+
+import PrimitiveRenderInfo from './webglUtils'
+
+
 const TYPED_ARRAYS = {
     '5120': Int8Array,    
     '5121': Uint8Array,   
@@ -91,7 +95,7 @@ const ArrayDataFromGltf = (gltf, buffers) =>{
     return data
 }
 
-const {PrimitiveRenderInfo} = require('./webglUtils')
+
 
 
 const PrimitiveRenderInfoFromArrayData = (arrayData) =>({
@@ -156,4 +160,4 @@ const MeshDataFromGLTF = (gltf, buffers) =>{
 }
 
 
-module.exports = {MeshDataFromGLTF, ArrayDataFromGltf, PrimitiveRenderInfoFromArrayData}
+export {MeshDataFromGLTF, ArrayDataFromGltf, PrimitiveRenderInfoFromArrayData}

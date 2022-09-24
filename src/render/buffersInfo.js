@@ -1,9 +1,9 @@
 
 
 
-const {getGLTypeForTypedArray} = require('./programm')
+const {getGLTypeForTypedArray} = require('./programInfo')
 
-const createIndicesBuffer = indices =>{
+const createIndicesBuffer = (gl, indices) =>{
     const buffer = gl.createBuffer()
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer)
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW)
@@ -11,7 +11,8 @@ const createIndicesBuffer = indices =>{
 }
 
 class BufferInfo{
-    constructor(info, buffer){ 
+    constructor(gl, info, buffer){ 
+        this.gl = gl 
         this.buffer = gl.createBuffer() 
         
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer)    
@@ -30,9 +31,9 @@ class BufferInfo{
     
 }
 class DynamicBufferInfo {
-    constructor(info){
+    constructor(gl, info){
         
-       
+        this.gl = gl
         this.buffer = gl.createBuffer() 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer)    
        
@@ -50,8 +51,8 @@ class DynamicBufferInfo {
     }
     update(data){
      
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer)
-        gl.bufferSubData(gl.ARRAY_BUFFER,0, data)
+        this.gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer)
+        this.gl.bufferSubData(gl.ARRAY_BUFFER,0, data)
      
     }
 }

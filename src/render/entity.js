@@ -1,23 +1,10 @@
-const {Node, TRS } = require('../node')
-const {Physics} = require('../server/physics')
-const {Box} = require('../server/collider')
-const {MeshRenderer, SkinnedMeshRenderer} = require('./mesh.js')
-const Skin = require('./skin')
+import {Node, TRS } from 'math'
+import { m4 } from 'math'
+import {MeshRenderer, SkinnedMeshRenderer} from './mesh.js'
+import Skin from './skin'
 
 
-const baseScheme = {
-    Cube(){
-            return new Physics(new Box(1,1,1))
-        }
 
-    ,
-    Left_arm_2(){
-        return new Physics(new Box(0.5,2,0.5))
-    },
-    Right_arm_2(){
-        return new Physics(new Box(0.5,2,0.5))
-    },
-}
 class Entity extends Node{
     static makeEntity(description, rootNodeNdx){
         const nodes = description.nodes
@@ -176,4 +163,4 @@ class Entity extends Node{
 }
 
 
-module.exports = {Entity}
+export default Entity
