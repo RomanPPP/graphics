@@ -17,8 +17,8 @@ jspm_packages/
 webpack.config.js
 
 src/main.js
-src/shaders
-src/svg
+src/shaders/
+src/svg/
 index.html
 
 
