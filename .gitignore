@@ -102,5 +102,12 @@ typings/
 # TernJS port file
 .tern-port
 ####
-src/server/test.js
+
+
+main
+
+src/render/svg/
+
+src/render/shaders/
+
 dist

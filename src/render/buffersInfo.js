@@ -51,8 +51,8 @@ class DynamicBufferInfo {
     }
     update(data){
      
-        this.gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer)
-        this.gl.bufferSubData(gl.ARRAY_BUFFER,0, data)
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer)
+        this.gl.bufferSubData(this.gl.ARRAY_BUFFER,0, data)
      
     }
 }

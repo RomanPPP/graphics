@@ -1,3 +1,4 @@
-import { ProgrammInfo } from "../programm";
-import { frag, vert } from "./dots";
-export default new ProgrammInfo(vert, frag)
+import { ProgramInfo } from "../programInfo";
+import {vert, frag} from "./points";
+const pointsPorgramInfo = new ProgramInfo(vert,frag)
+export {pointsPorgramInfo}

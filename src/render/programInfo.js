@@ -1,14 +1,14 @@
 
 
 function getGLTypeForTypedArray(gl, typedArray) {
-    if (typedArray instanceof Int8Array)         { return gl.BYTE; }           // eslint-disable-line
-    if (typedArray instanceof Uint8Array)        { return gl.UNSIGNED_BYTE; }  // eslint-disable-line
-    if (typedArray instanceof Uint8ClampedArray) { return gl.UNSIGNED_BYTE; }  // eslint-disable-line
-    if (typedArray instanceof Int16Array)        { return gl.SHORT; }          // eslint-disable-line
-    if (typedArray instanceof Uint16Array)       { return gl.UNSIGNED_SHORT; } // eslint-disable-line
-    if (typedArray instanceof Int32Array)        { return gl.INT; }            // eslint-disable-line
-    if (typedArray instanceof Uint32Array)       { return gl.UNSIGNED_INT; }   // eslint-disable-line
-    if (typedArray instanceof Float32Array)      { return gl.FLOAT; }          // eslint-disable-line
+    if (typedArray instanceof Int8Array)         { return gl.BYTE }           // eslint-disable-line
+    if (typedArray instanceof Uint8Array)        { return gl.UNSIGNED_BYTE }  // eslint-disable-line
+    if (typedArray instanceof Uint8ClampedArray) { return gl.UNSIGNED_BYTE }  // eslint-disable-line
+    if (typedArray instanceof Int16Array)        { return gl.SHORT }          // eslint-disable-line
+    if (typedArray instanceof Uint16Array)       { return gl.UNSIGNED_SHORT } // eslint-disable-line
+    if (typedArray instanceof Int32Array)        { return gl.INT }            // eslint-disable-line
+    if (typedArray instanceof Uint32Array)       { return gl.UNSIGNED_INT }   // eslint-disable-line
+    if (typedArray instanceof Float32Array)      { return gl.FLOAT }          // eslint-disable-line
     return false
   }
 function expandedTypedArray(array){
@@ -200,6 +200,7 @@ class ProgramInfo{
         return this
     }
     setUniforms(uniforms){
+        
         Object.keys(uniforms).forEach(name=>{
             const setter = this.uniformSetters[name]
             if(setter) setter(uniforms[name])

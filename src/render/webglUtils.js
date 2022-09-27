@@ -58,7 +58,7 @@ const buffersInfoFromPrimitive = (gl, primitive) =>{
 }
 const attribTypeProps = {
     'MAT4' : {
-        
+
     }
 }
 class PrimitiveRenderInfo{
@@ -115,7 +115,7 @@ class PrimitiveRenderInfo{
         gl.bindVertexArray(null)
         return this
     }
-    bindBuffer(name, type, location)
+    bindBuffer(name, type, location){}
     draw( uniforms, cameraMatrix){
         const gl = this.gl
         this.drawer.draw(this, uniforms, cameraMatrix)

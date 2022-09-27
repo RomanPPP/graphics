@@ -155,6 +155,7 @@ function createBoxGeometry(_a = 1, _b = 1, _c = 1){
                     POSITION : 0,
                   },
                   indices : 2,
+                  mode : 4
                 }
               ]
             }

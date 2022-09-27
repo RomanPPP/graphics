@@ -67,8 +67,11 @@ cameraMatrix = m4.yRotate(cameraMatrix, cRot[1])
 cameraMatrix = m4.xRotate(cameraMatrix, cRot[0])
 
 
-import { ArrayDataFromGltf, PrimitiveRenderInfoFromArrayData, getGlContext, resizeCanvasToDisplaySize, ProgramInfo, MeshRenderer, Drawer, createBoxGeometry } from '.'
-import {vert, frag} from './render/shaders/defaultShader'
+import { ArrayDataFromGltf, PrimitiveRenderInfoFromArrayData,
+     getGlContext, resizeCanvasToDisplaySize, ProgramInfo,
+      MeshRenderer, Drawer, createBoxGeometry, PrimitiveRenderInfo } from '.'
+import { pointsPorgramInfo } from './render/shaders'
+import {vert, frag} from './render/shaders/defaultShaderWithLighting'
 
 const gl = getGlContext()
 resizeCanvasToDisplaySize(gl.canvas, 1)
@@ -76,29 +79,23 @@ resizeCanvasToDisplaySize(gl.canvas, 1)
 
 const drawer = new Drawer()
 drawer.setContext(gl)
-const programInfo = new ProgramInfo(vert, frag)
-programInfo.compileShaders(gl).createUniformSetters()
-const data = createBoxGeometry()
-const arrayData = ArrayDataFromGltf(data.gltf, data.binaryBuffers)
-const primitives = PrimitiveRenderInfoFromArrayData(arrayData)
+pointsPorgramInfo.compileShaders(gl).createUniformSetters()
 
-const primitive = primitives.meshes[0].PrimitiveRenderInfos[0]
-
-primitive.setContext(gl).setDrawer(drawer).setProgramInfo(programInfo).bindBuffers()
-
-
-
+const points = new PrimitiveRenderInfo({mode : gl.POINTS, numElements : 1, attributes : {}})
+points.setContext(gl).setDrawer(drawer).bindBuffers().setProgramInfo(pointsPorgramInfo)
+.bindInstancingBuffer(10)
+.setInstancingData(new Float32Array([...m4.translation(0,0,0), ...m4.translation(5,0,0)]))
 const uniforms = { u_lightWorldPosition : [0,5,0], u_ambientLight : [1,0.2,0.3,1]}
-console.log(gl)
+
 const loop = ()=>{
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.CULL_FACE)
     gl.enable(gl.DEPTH_TEST)
-    
+   
     cameraMatrix = m4.translation(...cPos)
     cameraMatrix = m4.yRotate(cameraMatrix, cRot[1])
     cameraMatrix = m4.xRotate(cameraMatrix, cRot[0])
-    primitive.draw({...uniforms, u_matrix : m4.identity(), u_color : [1,0,1,1]}, cameraMatrix)
+    points.drawInstanced({u_matrix : m4.identity()}, cameraMatrix, 2)
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     requestAnimationFrame(loop)
 }

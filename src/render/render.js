@@ -14,35 +14,6 @@ const renderCache = {
     lastUsedBufferInfo : null
 }
 
-
-const render = (gl, renderInfo, uniforms,  cameraMatrix) => {
-  const viewMatrix = m4.inverse(cameraMatrix)
-  const viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix)
-  if(renderCache.lastUsedProgramInfo != renderInfo.programInfo){
-    renderCache.lastUsedProgramInfo = renderInfo.programInfo
-    gl.useProgram(renderCache.lastUsedProgramInfo.program)
-  }
-  const u_matrix = m4.multiply(viewProjectionMatrix, uniforms.u_matrix)
-  renderCache.lastUsedProgramInfo.setUniforms({...uniforms, u_matrix})
-  gl.bindVertexArray(renderInfo.vao)
-  
-  gl.drawElements(renderInfo.buffersInfo.type, renderInfo.buffersInfo.numElements, renderInfo.buffersInfo.elementType, 0)
-}
-
-const renderInstances = (gl, renderInfo, uniforms, cameraMatrix, numInstances) =>{
-  const viewMatrix = m4.inverse(cameraMatrix)
-  const viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix)
-  if(renderCache.lastUsedProgramInfo != renderInfo.programInfo){
-    renderCache.lastUsedProgramInfo = renderInfo.programInfo
-    gl.useProgram(renderCache.lastUsedProgramInfo.program)
-  }
-  const u_matrix = m4.multiply(viewProjectionMatrix, uniforms.u_matrix)
-  renderCache.lastUsedProgramInfo.setUniforms({...uniforms, u_matrix})
-  gl.bindVertexArray(renderInfo.vao)
- 
-  gl.drawElementsInstanced(renderInfo.buffersInfo.type, renderInfo.buffersInfo.numElements, gl.UNSIGNED_SHORT, 0, numInstances)
-  
-}
 class Drawer{
   constructor(){
     this.gl = null
@@ -56,35 +27,47 @@ class Drawer{
    
     this.projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar)
   }
-  draw(renderInfo, uniforms,  cameraMatrix){
+  getViewProjectionMatrix(cameraMatrix){
     const {gl, projectionMatrix} = this
     const viewMatrix = m4.inverse(cameraMatrix)
-    const viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix)
+    return m4.multiply(projectionMatrix, viewMatrix)
+  }
+  draw(renderInfo, uniforms,  cameraMatrix){
+    const viewProjectionMatrix = this.getViewProjectionMatrix(cameraMatrix)
+    const {vao, buffersInfo} = renderInfo
+    const {gl} = this 
     if(renderCache.lastUsedProgramInfo != renderInfo.programInfo){
       renderCache.lastUsedProgramInfo = renderInfo.programInfo
       gl.useProgram(renderCache.lastUsedProgramInfo.program)
     }
     const u_matrix = m4.multiply(viewProjectionMatrix, uniforms.u_matrix)
     renderCache.lastUsedProgramInfo.setUniforms({...uniforms, u_matrix})
-    gl.bindVertexArray(renderInfo.vao)
-    
-    gl.drawElements(renderInfo.buffersInfo.type, renderInfo.buffersInfo.numElements, renderInfo.buffersInfo.elementType, 0)
+    if(vao)gl.bindVertexArray(vao)
+    if(!buffersInfo.indices){
+      //console.log(buffersInfo)
+      gl.drawArrays(buffersInfo.mode, buffersInfo.offset, buffersInfo.numElements)
+      return
+    }
+    gl.drawElements(buffersInfo.mode, buffersInfo.numElements, buffersInfo.elementType, 0)
   
   }
   drawInstanced(renderInfo, uniforms, cameraMatrix, numInstances){
-    const {gl, projectionMatrix} = this
-    const viewMatrix = m4.inverse(cameraMatrix)
-    const viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix)
+    const viewProjectionMatrix = this.getViewProjectionMatrix(cameraMatrix)
+    const {gl} = this 
+    const {vao, buffersInfo} = renderInfo
     if(renderCache.lastUsedProgramInfo != renderInfo.programInfo){
       renderCache.lastUsedProgramInfo = renderInfo.programInfo
       gl.useProgram(renderCache.lastUsedProgramInfo.program)
     }
     const u_matrix = m4.multiply(viewProjectionMatrix, uniforms.u_matrix)
     renderCache.lastUsedProgramInfo.setUniforms({...uniforms, u_matrix})
-    gl.bindVertexArray(renderInfo.vao)
-  
-    gl.drawElementsInstanced(renderInfo.buffersInfo.type, renderInfo.buffersInfo.numElements, gl.UNSIGNED_SHORT, 0, numInstances)
-  
+    gl.bindVertexArray(vao)
+    if(!buffersInfo.indices){
+      //console.log(buffersInfo)
+      gl.drawArraysInstanced(buffersInfo.mode, buffersInfo.offset, buffersInfo.numElements, numInstances)
+      return
+    }
+    gl.drawElementsInstanced(buffersInfo.mode, buffersInfo.numElements, gl.UNSIGNED_SHORT, 0, numInstances)
   }
 }
 export default Drawer

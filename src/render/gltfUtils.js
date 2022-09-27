@@ -60,8 +60,10 @@ const ArrayDataFromGltf = (gltf, buffers) =>{
     }
     const _meshes = meshes.map(mesh =>({
         primitives : mesh.primitives.map(_primitive =>{
+            
             const primitive = {
-                attributes : {}
+                attributes : {},
+                mode : _primitive.mode
             }
             if(_primitive.hasOwnProperty('indices')){
                 const indicesInfo = attribDataFromAccessor(accessors[_primitive.indices])
