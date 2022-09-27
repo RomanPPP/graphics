@@ -13,6 +13,13 @@ jspm_packages/
 
 
 
-src
+
+webpack.config.js
+
+src/main.js
+src/shaders
+src/svg
+index.html
+
 
 dist
