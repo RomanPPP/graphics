@@ -19,13 +19,13 @@ function resizeCanvasToDisplaySize(canvas, multiplier) {
     return false;
   }
 
-import {BufferInfo, DynamicBufferInfo} from './render/buffersInfo'
-import {PrimitiveRenderInfoFromArrayData, ArrayDataFromGltf} from './render/gltfUtils'
-import { MeshRenderer, SkinnedMeshRenderer } from './render/mesh';
-import {createBoxGeometry} from './render/primitives'
-import PrimitiveRenderInfo from './render/webglUtils'
-import { getGLTypeForTypedArray, ProgramInfo, expandedTypedArray} from './render/programInfo';
-import Drawer from './render/render';
+import {BufferInfo, DynamicBufferInfo} from './src/buffersInfo'
+import {PrimitiveRenderInfoFromArrayData, ArrayDataFromGltf} from './src/gltfUtils'
+import { MeshRenderer, SkinnedMeshRenderer } from './src/mesh';
+import {createBoxGeometry} from './src/primitives'
+import PrimitiveRenderInfo from './src/webglUtils'
+import { getGLTypeForTypedArray, ProgramInfo, expandedTypedArray} from './src/programInfo';
+import Drawer from './src/render';
 
 
 
