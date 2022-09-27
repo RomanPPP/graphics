@@ -40,20 +40,27 @@ const setAttributes = (gl, bufferInfo,  divisor) =>{
 }
 const buffersInfoFromPrimitive = (gl, primitive) =>{
     const buffersInfo = {attributes : {}}
-    
-    Object.keys(primitive.attributes).forEach(attributeName => {
+    const attributes = primitive.attributes || {}
+    Object.keys(attributes).forEach(attributeName => {
             buffersInfo.attributes[attributeName] = new BufferInfo(gl, primitive.attributes[attributeName])
             setAttributes(gl, buffersInfo.attributes[attributeName])
         })
     if(primitive.indices) buffersInfo.indices = createIndicesBuffer(gl, primitive.indices)
+    else buffersInfo.indices = null
     buffersInfo.numElements = primitive.numElements || primitive.indices.length
-   
-    buffersInfo.type = primitive.type || gl.TRIANGLES 
+        
+    buffersInfo.mode = primitive.mode 
     buffersInfo.elementType = primitive.componentType
+    buffersInfo.offset = primitive.offset 
+    
     return buffersInfo
     
 }
-
+const attribTypeProps = {
+    'MAT4' : {
+        
+    }
+}
 class PrimitiveRenderInfo{
     constructor(primitive){
         this.vao = null
@@ -75,15 +82,18 @@ class PrimitiveRenderInfo{
         this.programInfo = programInfo
         return this
     }
-    bindBuffers(){
+    bindPrimitiveBuffers(){
         const gl = this.gl
+        this.vao = gl.createVertexArray()
+        gl.bindVertexArray(this.vao)
         if(this.primitive){
-            this.vao = gl.createVertexArray()
-            gl.bindVertexArray(this.vao)
+           
+            
             this.buffersInfo = buffersInfoFromPrimitive(gl, this.primitive)
-            gl.bindVertexArray(null)
+           
         }
-        console.log(this.buffersInfo)
+        gl.bindVertexArray(null)
+        console.log(this)
         return this
     }
     bindInstancingBuffer( maxNumInstances = 10){
@@ -105,6 +115,7 @@ class PrimitiveRenderInfo{
         gl.bindVertexArray(null)
         return this
     }
+    bindBuffer(name, type, location)
     draw( uniforms, cameraMatrix){
         const gl = this.gl
         this.drawer.draw(this, uniforms, cameraMatrix)
@@ -118,8 +129,8 @@ class PrimitiveRenderInfo{
         return this
     }
     drawInstanced( uniforms, cameraMatrix, numInstances){
-        const gl = this.gl
-        this.drawer.drawInstanced(gl, this, uniforms, cameraMatrix, numInstances)
+        
+        this.drawer.drawInstanced( this, uniforms, cameraMatrix, numInstances)
         return this
     }
 }

@@ -9,7 +9,7 @@ uniform mat4 u_matrix;
     
 void main() {
 
-    vec4 pos = u_matrix  * (a_position );
+    vec4 pos = u_matrix  * a_position;
     
     gl_Position = pos;
     v_texcoord = a_texcoord;  

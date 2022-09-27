@@ -10,7 +10,7 @@ uniform mat4 u_matrix;
     
 void main() {
 
-    vec4 pos = u_matrix * i_matrix * (a_position );
+    vec4 pos = u_matrix * i_matrix * a_position;
     gl_PointSize = 5.0;
     gl_Position = pos;
     
