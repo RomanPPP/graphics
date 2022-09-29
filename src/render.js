@@ -34,40 +34,42 @@ class Drawer{
   }
   draw(renderInfo, uniforms,  cameraMatrix){
     const viewProjectionMatrix = this.getViewProjectionMatrix(cameraMatrix)
-    const {vao, buffersInfo} = renderInfo
+    const {vao, mode, offset, numElements, geometryBuffers} = renderInfo
     const {gl} = this 
     if(renderCache.lastUsedProgramInfo != renderInfo.programInfo){
       renderCache.lastUsedProgramInfo = renderInfo.programInfo
       gl.useProgram(renderCache.lastUsedProgramInfo.program)
     }
-    const u_matrix = m4.multiply(viewProjectionMatrix, uniforms.u_matrix)
-    renderCache.lastUsedProgramInfo.setUniforms({...uniforms, u_matrix})
+    const worldViewProjection = m4.multiply(viewProjectionMatrix, uniforms.u_matrix)
+    const worldMatrix = uniforms.u_matrix
+    renderCache.lastUsedProgramInfo.setUniforms({...uniforms, worldMatrix, worldViewProjection})
     if(vao)gl.bindVertexArray(vao)
-    if(!buffersInfo.indices){
+    if(!geometryBuffers.indices){
       //console.log(buffersInfo)
-      gl.drawArrays(buffersInfo.mode, buffersInfo.offset, buffersInfo.numElements)
+      gl.drawArrays(mode, offset, numElements)
       return
     }
-    gl.drawElements(buffersInfo.mode, buffersInfo.numElements, buffersInfo.elementType, 0)
+    gl.drawElements(mode, numElements, elementType, 0)
   
   }
   drawInstanced(renderInfo, uniforms, cameraMatrix, numInstances){
     const viewProjectionMatrix = this.getViewProjectionMatrix(cameraMatrix)
     const {gl} = this 
-    const {vao, buffersInfo} = renderInfo
+    const {vao, mode, offset, numElements, geometryBuffers} = renderInfo
     if(renderCache.lastUsedProgramInfo != renderInfo.programInfo){
       renderCache.lastUsedProgramInfo = renderInfo.programInfo
       gl.useProgram(renderCache.lastUsedProgramInfo.program)
     }
-    const u_matrix = m4.multiply(viewProjectionMatrix, uniforms.u_matrix)
-    renderCache.lastUsedProgramInfo.setUniforms({...uniforms, u_matrix})
+    const worldViewProjection = m4.multiply(viewProjectionMatrix, uniforms.u_matrix)
+    const worldMatrix = uniforms.u_matrix
+    renderCache.lastUsedProgramInfo.setUniforms({...uniforms, worldViewProjection, worldMatrix})
     gl.bindVertexArray(vao)
-    if(!buffersInfo.indices){
+    if(!geometryBuffers.indices){
       //console.log(buffersInfo)
-      gl.drawArraysInstanced(buffersInfo.mode, buffersInfo.offset, buffersInfo.numElements, numInstances)
+      gl.drawArraysInstanced(mode, offset,numElements, numInstances)
       return
     }
-    gl.drawElementsInstanced(buffersInfo.mode, buffersInfo.numElements, gl.UNSIGNED_SHORT, 0, numInstances)
+    gl.drawElementsInstanced(mode, numElements, gl.UNSIGNED_SHORT, 0, numInstances)
   }
 }
 export default Drawer

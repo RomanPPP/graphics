@@ -69,7 +69,7 @@ function createBoxGeometry(_a = 1, _b = 1, _c = 1){
         indices.push(offset + 0, offset + 2, offset + 3);
       }
       const len = positions.byteLength
-      const texcoordBuffer = new Float32Array(
+      const texcoord = new Float32Array(
         [
         // Front
         0.0,  0.0,
@@ -126,6 +126,13 @@ function createBoxGeometry(_a = 1, _b = 1, _c = 1){
               count : 36,
               componentType : 5123,
               type : 'SCALAR'
+            },
+            {
+              bufferView : 3,
+              byteOffset : 0,
+              count : 48,
+              componentType : 5126,
+              type : 'VEC2'
             }
             ],
           bufferViews : [
@@ -143,6 +150,11 @@ function createBoxGeometry(_a = 1, _b = 1, _c = 1){
                 buffer : 2,
                 byteLength : indices.byteLength,
                 byteOffset : 0
+              },
+              {
+                buffer : 3,
+                byteLength : texcoord.byteLength,
+                byteOffset : 0
               }
             ],
           meshes : [
@@ -153,9 +165,10 @@ function createBoxGeometry(_a = 1, _b = 1, _c = 1){
                   attributes : {
                     NORMAL : 1,
                     POSITION : 0,
+                    TEXCOORD_0 : 3
                   },
                   indices : 2,
-                  mode : 4
+                  mode : 3
                 }
               ]
             }
@@ -169,7 +182,7 @@ function createBoxGeometry(_a = 1, _b = 1, _c = 1){
           ]
         },
         binaryBuffers : [
-          positions.buffer, normals.buffer, indices.buffer
+          positions.buffer, normals.buffer, indices.buffer, texcoord.buffer
         ]
       };
 }

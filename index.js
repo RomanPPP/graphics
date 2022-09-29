@@ -23,7 +23,7 @@ import {BufferInfo, DynamicBufferInfo} from './src/buffersInfo'
 import {PrimitiveRenderInfoFromArrayData, ArrayDataFromGltf} from './src/gltfUtils'
 import { MeshRenderer, SkinnedMeshRenderer } from './src/mesh';
 import {createBoxGeometry} from './src/primitives'
-import PrimitiveRenderInfo from './src/webglUtils'
+import PrimitiveRenderer from './src/PrimitiveRenderer'
 import { getGLTypeForTypedArray, ProgramInfo, expandedTypedArray} from './src/programInfo';
 import Drawer from './src/render';
 
@@ -31,7 +31,7 @@ import Drawer from './src/render';
 
 
 export {
-    PrimitiveRenderInfo,
+    PrimitiveRenderer,
     resizeCanvasToDisplaySize,
     getGlContext,
     PrimitiveRenderInfoFromArrayData, ArrayDataFromGltf,

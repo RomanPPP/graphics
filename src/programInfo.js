@@ -34,11 +34,23 @@ function expandedTypedArray(array){
 
 function createUniformSetters(gl, program){
     let textureUnit = 0
+    const createTextureSetter = (program, uniformInfo)=>{
+        const location = gl.getUniformLocation(program, uniformInfo.name)
+        console.log(uniformInfo, location)
+        return (texBlockNum) => {
+            
 
+            gl.uniform1i(location, texBlockNum)
+        }
+        
+        
+    }
     function createUniformSetter(program, uniformInfo) {
     
         const location = gl.getUniformLocation(program, uniformInfo.name)
+        console.log(location)
         const type = uniformInfo.type
+
         const isArray = (uniformInfo.size > 1 && uniformInfo.name.substr(-3) === '[0]');
         
         if (type === gl.FLOAT && isArray) {
@@ -125,9 +137,11 @@ function createUniformSetters(gl, program){
         return function(v) {
             gl.uniformMatrix4fv(location, false, v);
         };
-        }    
+        }
+        
     }
-    const uniformSetters = { };
+    const uniformSetters = {}
+    const textureSetters = {}
     const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     
     for (let ii = 0; ii < numUniforms; ++ii) {
@@ -135,8 +149,12 @@ function createUniformSetters(gl, program){
       if (!uniformInfo) {
         break;
       }
-      
       let name = uniformInfo.name;
+      if(uniformInfo.type === gl.SAMPLER_2D){
+        textureSetters[name] = createTextureSetter(program, uniformInfo)
+        continue
+      }
+      
       
       if (name.substr(-3) === '[0]') {
         name = name.substr(0, name.length - 3);
@@ -153,7 +171,7 @@ function createUniformSetters(gl, program){
       }
       
     }
-    return uniformSetters
+    return {uniformSetters, textureSetters}
 }
 
 class ProgramInfo{
@@ -170,7 +188,9 @@ class ProgramInfo{
       
     }
     createUniformSetters(){
-        this.uniformSetters = createUniformSetters(this.gl, this.program)
+        const {uniformSetters, textureSetters} = createUniformSetters(this.gl, this.program)
+        this.textureSetters = textureSetters
+        this.uniformSetters = uniformSetters
         return this
     }
     compileShaders(gl){
@@ -200,14 +220,19 @@ class ProgramInfo{
         return this
     }
     setUniforms(uniforms){
-        
+        this.gl.useProgram(this.program)
         Object.keys(uniforms).forEach(name=>{
             const setter = this.uniformSetters[name]
             if(setter) setter(uniforms[name])
         })
         return this
     }
-    
+    setTextureUniformUnit(name, unit){
+        this.gl.useProgram(this.program)
+        const setter = this.textureSetters[name]
+        if(setter) setter(unit)
+        return this
+    }
 }
 
 

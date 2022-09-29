@@ -1,5 +1,5 @@
 
-import PrimitiveRenderInfo from './webglUtils'
+import PrimitiveRenderer from './PrimitiveRenderer'
 
 
 const TYPED_ARRAYS = {
@@ -97,69 +97,16 @@ const ArrayDataFromGltf = (gltf, buffers) =>{
     return data
 }
 
-
-
-
 const PrimitiveRenderInfoFromArrayData = (arrayData) =>({
     skins : arrayData.skins, meshes : arrayData.meshes.map(mesh =>
         ({
             name : mesh.name,
-            PrimitiveRenderInfos : mesh.primitives.map(primitive => new PrimitiveRenderInfo(primitive))
+            primitives : mesh.primitives.map(primitive => new PrimitiveRenderer(primitive))
         })
         )
     
 })
-const MeshDataFromGLTF = (gltf, buffers) =>{
-    const {bufferViews, accessors, meshes} = gltf
-    const _meshes = []
-    const MeshData = {
-        nodes : JSON.parse(JSON.stringify(gltf.nodes))
-    }
-    
-
-    meshes.forEach(mesh =>{
-        const _mesh = {
-            primitives : [],
-            name : mesh.name
-        }
-        const primitives = [{
-            attributes : {}
-        }]
-        mesh.primitives.forEach(primitive =>{
-            const _primitive = {attributes : {}}
-            if(primitive.hasOwnProperty('indices')){
-                const indicesInfo = attribDataFromAccessor(accessors[primitive.indices])
-                _primitive.indices = indicesInfo.data
-                _primitive.numElements = indicesInfo.count
-                _primitive.componentType = indicesInfo.componentType
-                
-            }
-            const attributes = primitive.attributes
-            Object.keys(attributes).forEach(attribName =>{
-                if(attribName === 'TEXCOORD_0')return
-                if(attribName === 'TANGENT')return
-                const attribute = attributes[attribName]
-                _primitive.attributes[attribName] = attribDataFromAccessor(accessors[attribute])
-                //if(attribName === 'JOINTS_0') _primitive.attributes[attribName].data = new Uint32Array(_primitive.attributes[attribName].data)
-                _primitive.attributes[attribName].location = LOCATIONS[attribName]
-            })
-            _mesh.primitives.push(_primitive)
-            
-        })
-        _mesh._primitives = _mesh.primitives.map(primitive => new PrimitiveRenderInfo(primitive))
-        _meshes.push(_mesh)
-    })
-    if(gltf.skins){
-        MeshData.skins = gltf.skins.map(skin =>{
-            return {
-                joints : [...skin.joints],
-                inverseBindMatrices : attribDataFromAccessor(accessors[skin.inverseBindMatrices]).data
-            }
-        })
-    }
-    MeshData.meshes = _meshes
-    return MeshData
-}
 
 
-export {MeshDataFromGLTF, ArrayDataFromGltf, PrimitiveRenderInfoFromArrayData}
+
+export { ArrayDataFromGltf, PrimitiveRenderInfoFromArrayData}

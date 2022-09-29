@@ -7,19 +7,20 @@ const setCanvasSize = (ctx, width, height) =>{
   
 const makeTexture = (gl, ctx) => {
     const tex = gl.createTexture()
-    gl.bindTexture(gl.TEXTURE_2D, tex)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas)
-    gl.generateMipmap(gl.TEXTURE_2D)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas);
     return tex
   }
-const makeStripeTexture =  options => {
+const makeStripeTexture =  (gl, options )=> {
     options = options || {}
-    var width  = options.width  || 2
-    var height = options.height || 2
-    var color1 = options.color1 || "rgba(0,0,0,0.1)"
-    var color2 = options.color2 || "rgba(0,1,1,0.5)"
+    var width  = options.width  || 4
+    var height = options.height || 4
+    var color1 = options.color1 || "rgba(1,0,0,0.1)"
+    var color2 = options.color2 || "rgba(1,1,1,0.5)"
     const ctx = document.createElement("canvas").getContext("2d")
     setCanvasSize(ctx, width, height);
   
