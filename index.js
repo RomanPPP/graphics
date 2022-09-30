@@ -26,11 +26,11 @@ import {createBoxGeometry} from './src/primitives'
 import PrimitiveRenderer from './src/PrimitiveRenderer'
 import { getGLTypeForTypedArray, ProgramInfo, expandedTypedArray} from './src/programInfo';
 import Drawer from './src/render';
-
-
+import { Texture, makeImgFromSvgXml, makeStripeImg } from './src/textureUtils';
 
 
 export {
+  Texture, makeImgFromSvgXml, makeStripeImg,
     PrimitiveRenderer,
     resizeCanvasToDisplaySize,
     getGlContext,

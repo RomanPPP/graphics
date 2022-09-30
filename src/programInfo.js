@@ -36,7 +36,7 @@ function createUniformSetters(gl, program){
     let textureUnit = 0
     const createTextureSetter = (program, uniformInfo)=>{
         const location = gl.getUniformLocation(program, uniformInfo.name)
-        console.log(uniformInfo, location)
+       
         return (texBlockNum) => {
             
 
@@ -48,7 +48,7 @@ function createUniformSetters(gl, program){
     function createUniformSetter(program, uniformInfo) {
     
         const location = gl.getUniformLocation(program, uniformInfo.name)
-        console.log(location)
+     
         const type = uniformInfo.type
 
         const isArray = (uniformInfo.size > 1 && uniformInfo.name.substr(-3) === '[0]');

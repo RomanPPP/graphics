@@ -29,7 +29,7 @@ const makeStripeTexture =  (gl, options )=> {
   
     return makeTexture(gl, ctx)
 }
-const maketex =  (options )=> {
+const makeStripeImg =  (options)=> {
     options = options || {}
     var width  = options.width  || 4
     var height = options.height || 4
@@ -45,7 +45,7 @@ const maketex =  (options )=> {
   
     return ctx.canvas
 }
-const makeTextureFromSvgXml = (gl, xml, options = {}) =>{
+const makeImgFromSvgXml = ( xml, options = {}) =>{
     const img = document.createElement('img')
     var svg64 = btoa(xml)
     var b64Start = 'data:image/svg+xml;base64,'
@@ -64,7 +64,7 @@ const makeTextureFromSvgXml = (gl, xml, options = {}) =>{
     ctx.drawImage(img, x, y, width, height)
     ctx.fillStyle = "rgba(0,0,0,0.1)"
     ctx.fillRect(0, 0, width, height )
-    return makeTexture(gl, ctx)
+    return ctx.img
 }
 const setTextureUnits = (gl, texture, unitNum) => {
     gl.activeTexture(gl.TEXTURE0 + unitNum);
@@ -91,4 +91,4 @@ class Texture{
         }
     }
 }
-export {makeStripeTexture, makeTextureFromSvgXml, setTextureUnits, maketex, Texture}
+export { makeImgFromSvgXml, makeStripeImg, Texture}
