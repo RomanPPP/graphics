@@ -98,7 +98,7 @@ class PrimitiveRenderer{
         return this
     }
     draw( uniforms, cameraMatrix){
-        const gl = this.gl
+        
         this.drawer.draw(this, uniforms, cameraMatrix)
         return this
     }
