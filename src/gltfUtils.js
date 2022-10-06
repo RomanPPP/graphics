@@ -1,60 +1,30 @@
 
 import PrimitiveRenderer from './PrimitiveRenderer'
+import { MeshRenderer } from './MeshRenderer'
+import {AttributeSetter, BufferController} from './BufferAttribute'
+import { NUM_COMPONENTS, TYPED_ARRAYS, LOCATIONS } from './enums'
 
-
-const TYPED_ARRAYS = {
-    '5120': Int8Array,    
-    '5121': Uint8Array,   
-    '5122': Int16Array,   
-    '5123': Uint16Array,  
-    '5124': Int32Array,   
-    '5125': Uint32Array,  
-    '5126': Float32Array, 
-}
-const NUM_COMPONENTS = {
-    'SCALAR' : 1,
-    'VEC2' : 2,
-    'VEC3' : 3,
-    'VEC4' : 4,
-    'MAT2': 4,
-  'MAT3': 9,
-  'MAT4': 16,
-}
-const LOCATIONS = {
-    'POSITION' : 0,
-    'NORMAL' : 1,
-    'WEIGHTS_0' : 2,
-    'JOINTS_0' : 3,
-    'TEXCOORD_0' : 4,
-}
-
-
-
-
-
-
-
+ 
 const ArrayDataFromGltf = (gltf, buffers) =>{
-    const {bufferViews, accessors, meshes} = gltf
+    const {bufferViews, accessors, meshes, nodes} = gltf
     const attribDataFromAccessor = (accessor) =>{
         const bufferView = bufferViews[accessor.bufferView]
         const {count, componentType, type} = accessor
         const byteOffset = accessor.byteOffset || 0
         const {byteLength, target} = bufferView
         const stride = bufferView.byteStride || 0
-        const bufferByteOffset = bufferView.byteOffset||0
+        const bufferViewByteOffset = bufferView.byteOffset||0
         const buffer = buffers[bufferView.buffer]
-        const size = TYPED_ARRAYS[componentType].BYTES_PER_ELEMENT
-    
+        
         return {
-            data : new Uint8Array(buffer, bufferView.byteOffset || 0, byteLength),
+            data : new Uint8Array(buffer, bufferViewByteOffset, byteLength),
             numComponents : NUM_COMPONENTS[type],
             stride ,
             byteLength,
             location : null,
             count,
             type : componentType,
-            offset : accessor.byteOffset  || 0,
+            offset : byteOffset  || 0,
             componentType : accessor.componentType
         }
     }
@@ -82,31 +52,33 @@ const ArrayDataFromGltf = (gltf, buffers) =>{
         name : mesh.name
     })
     )
-    const data = {meshes : _meshes}
-    if(gltf.skins){
-        data.skins = gltf.skins.map(skin =>{
-            return {
-                joints : [...skin.joints],
-                inverseBindMatrices : attribDataFromAccessor(accessors[skin.inverseBindMatrices]).data
-            }
+    
+    
+    return _meshes.map(mesh =>
+        {
+                const primitives =  mesh.primitives.map(primitive => new PrimitiveRenderer(primitive))
+                const name = mesh.name
+                
+                return new MeshRenderer({primitives, name})
         })
-    }
-    else{
-        data.skins = []
-    }
-    return data
+    
 }
 
-const PrimitiveRenderInfoFromArrayData = (arrayData) =>({
-    skins : arrayData.skins, meshes : arrayData.meshes.map(mesh =>
-        ({
-            name : mesh.name,
-            primitives : mesh.primitives.map(primitive => new PrimitiveRenderer(primitive))
-        })
-        )
-    
-})
+const PrimitiveRenderInfoFromArrayData = (meshes) => meshes.map(mesh =>
+    {
+            const primitives =  mesh.primitives.map(primitive => new PrimitiveRenderer(primitive))
+            const name = mesh.name
+            return new MeshRenderer({name, primitives})
+    })
+
+const EntityDataFromGltf = (gltf, buffers) => PrimitiveRenderInfoFromArrayData(ArrayDataFromGltf(gltf, buffers))
 
 
-
-export { ArrayDataFromGltf, PrimitiveRenderInfoFromArrayData}
+class GLTF{
+    constructor(gltf, binaryBuffers){
+        const {nodes, meshes, skins} = gltf
+        this.nodes = nodes
+        this.meshes = ArrayDataFromGltf(gltf, binaryBuffers)
+    }
+}
+export { ArrayDataFromGltf, PrimitiveRenderInfoFromArrayData, EntityDataFromGltf, GLTF}

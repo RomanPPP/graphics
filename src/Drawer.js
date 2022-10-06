@@ -34,7 +34,7 @@ class Drawer{
   }
   draw(renderInfo, uniforms,  cameraMatrix){
     const viewProjectionMatrix = this.getViewProjectionMatrix(cameraMatrix)
-    const {vao, mode, offset, numElements, geometryBuffers} = renderInfo
+    const {vao, mode, offset, numElements, indices, componentType} = renderInfo
     const {gl} = this 
     if(renderCache.lastUsedProgramInfo != renderInfo.programInfo){
       renderCache.lastUsedProgramInfo = renderInfo.programInfo
@@ -44,18 +44,18 @@ class Drawer{
     const worldMatrix = uniforms.u_matrix
     renderCache.lastUsedProgramInfo.setUniforms({...uniforms, worldMatrix, worldViewProjection})
     if(vao)gl.bindVertexArray(vao)
-    if(!geometryBuffers.indices){
+    if(!indices){
       //console.log(buffersInfo)
       gl.drawArrays(mode, offset, numElements)
       return
     }
-    gl.drawElements(mode, numElements, elementType, 0)
+    gl.drawElements(mode, numElements, componentType, offset)
   
   }
   drawInstanced(renderInfo, uniforms, cameraMatrix, numInstances){
     const viewProjectionMatrix = this.getViewProjectionMatrix(cameraMatrix)
     const {gl} = this 
-    const {vao, mode, offset, numElements, geometryBuffers} = renderInfo
+    const {vao, mode, offset, numElements, indices} = renderInfo
     if(renderCache.lastUsedProgramInfo != renderInfo.programInfo){
       renderCache.lastUsedProgramInfo = renderInfo.programInfo
       gl.useProgram(renderCache.lastUsedProgramInfo.program)
@@ -64,12 +64,11 @@ class Drawer{
     const worldMatrix = uniforms.u_matrix
     renderCache.lastUsedProgramInfo.setUniforms({...uniforms, worldViewProjection, worldMatrix})
     gl.bindVertexArray(vao)
-    if(!geometryBuffers.indices){
-      //console.log(buffersInfo)
+    if(!indices){
       gl.drawArraysInstanced(mode, offset,numElements, numInstances)
       return
     }
-    gl.drawElementsInstanced(mode, numElements, gl.UNSIGNED_SHORT, 0, numInstances)
+    gl.drawElementsInstanced(mode, numElements, gl.UNSIGNED_SHORT, offset, numInstances)
   }
 }
 export default Drawer

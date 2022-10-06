@@ -1,12 +1,16 @@
 
+import getAttributePropsByType from './attribTypeProps'
+import attribTypeProps from './attribTypeProps'
+import {BufferAttribute} from './BufferAttribute'
 class MeshRenderer{
-    constructor(meshData){
-        this.primitives = meshData.PrimitiveRenderInfos
-        this.name = {meshData}
-        this.vao = null
-        
+    constructor({primitives, name}){
+        this.primitives = primitives
+        this.name = name
+        this.gl = null
+        this.buffers = {}
     }
     setContext(gl){
+        this.gl = gl
         for(let i = 0, n = this.primitives.length; i < n; i++){
             this.primitives[i].setContext(gl)
         }
@@ -23,14 +27,6 @@ class MeshRenderer{
             this.primitives[i].setDrawer(drawer)
         }
         return this
-        
-    }
-    bindBuffers(){
-     
-        for(let i = 0, n = this.primitives.length; i < n; i++){
-            this.primitives[i].bindBuffers()
-        }
-        return this
     }
     draw(uniforms, cameraMatrix){
         for(let i = 0, n = this.primitives.length; i < n; i++){
@@ -44,18 +40,42 @@ class MeshRenderer{
         }
         return this
     }
-    bindInstancingBuffer(){
+    createPrimitiveBuffers(){
+        this.primitives.forEach(primitive => primitive.createGeometryBuffers())
+        return this
+    }
+    createBufferAttribData(name, type, params){
+        const {gl} = this
+        const attribProps = getAttributePropsByType(type)
+        const attributeProps = {...attribProps,  ...params}
+        const bufferAttribData = new BufferAttribute(gl, attributeProps)
+        this.buffers = {...this.buffers,
+             [name] : bufferAttribData}
+        return this
+    }
+    bufferData(bufferName, data, byteLength){
+        const bufferAttributeDescriptor = this.buffers[bufferName]
+        
+        bufferAttributeDescriptor.bufferData(data, byteLength)
+        return this
+    }
+    bufferSubData(bufferName, data, offset){
+        const bufferAttributeDescriptor = this.buffers[bufferName]
+        bufferAttributeDescriptor.bufferSubData(data, byteLength, offset)
+        return this
+    }
+    setAttribute(name){
+        const bufferAttribData = this.buffers[name]
+        this.primitives.forEach(primitive => primitive.setAttribute(bufferAttribData))
+        return this
+    }
+    setPrimitiveAttributes(){
         for(let i = 0, n = this.primitives.length; i < n; i++){
-            this.primitives[i].bindInstancingBuffer()
+            this.primitives[i].setAttributes()
         }
         return this
     }
-    setInstancingData(data){
-        for(let i = 0, n = this.primitives.length; i < n; i++){
-            this.primitives[i].setInstancingData(data)
-        }
-        return this
-    }
+    
 }
 class SkinnedMeshRenderer{
     constructor(primitives, skin){
@@ -71,4 +91,4 @@ class SkinnedMeshRenderer{
         }
     }
 }
-module.exports = {MeshRenderer, SkinnedMeshRenderer}
+export {MeshRenderer, SkinnedMeshRenderer}

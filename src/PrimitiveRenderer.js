@@ -1,35 +1,60 @@
 
 
-import {createIndicesBuffer,BufferAttribDescriptor, DynamicBufferAttribDescriptor} from './buffersInfo'
+import {createIndicesBuffer,BufferAttribute, DynamicBufferAttribDescriptor, BufferController, AttributeSetter} from './BufferAttribute'
 import { ELEMENT_SIZE } from './enums'
+import { getGLTypeForTypedArray } from './programInfo'
+import getAttributePropsByType from './attribTypeProps'
 
 
-const attribTypeProps = {
-    'MAT4' : {
-        stride : 64,
-        byteLength : 64,
-        type : 0x1406,
-        numAttributes : 4,
-        numComponents : 4,
-    }
-}
 class PrimitiveRenderer{
-    constructor(primitive){
-        const { mode, numElements, offset} = primitive
-        this.vao = null
-        this.geometryBuffers = {}
-        this.buffers = null
-        this.dynamicBuffers = null
+    constructor(arrayData){
+        this.buffers = {}
         this.programInfo = null
-        this.primitive = primitive
         this.gl = null
         this.drawer = null
-        this.mode = mode
-        this.offset = offset
-        this.numElements = numElements
+        this.mode = null
+        this.offset = null
+        this.numElements = null
+        this.vao = null
+        this.componentType = null
+        this.arrayData = arrayData
     }
     setContext(gl){
         this.gl = gl
+        return this
+    }
+    createGeometryBuffers(){
+        const {arrayData, gl} = this
+        const {attributes, indices, componentType, numElements, mode} = arrayData
+        this.numElements = numElements
+        this.mode = mode
+        if(componentType) this.componentType = componentType
+        Object.keys(attributes).forEach(attributeName => {
+            const {stride, type, offset, location, numComponents, numAttributes, data, size} = attributes[attributeName]
+            const bufferAttributeDescriptor = new BufferAttribute(gl, {stride, type, offset, location, numAttributes, numComponents, size})
+            bufferAttributeDescriptor.bufferData(data)
+            this.buffers = {...this.buffers, [attributeName] : bufferAttributeDescriptor}
+        })
+        if(indices){
+            const indicesBuffer = gl.createBuffer()
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer)
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW)
+            this.indices = indicesBuffer
+        }
+        return this
+    }
+    setAttributes(){
+        const gl = this.gl
+        const vao = gl.createVertexArray()
+        this.gl.bindVertexArray(vao)
+        for(const attrib in this.buffers){
+            const bufferAttributeDescriptor = this.buffers[attrib]
+            bufferAttributeDescriptor.setAttribute()
+        }
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indices)
+        this.gl.bindVertexArray(null)
+        this.vao = vao
+        
         return this
     }
     setDrawer(drawer){
@@ -40,56 +65,36 @@ class PrimitiveRenderer{
         this.programInfo = programInfo
         return this
     }
-    bindGeometryBuffers(){
-        const gl = this.gl
-        const {attributes, indices, mode, numElements, offset} = this.primitive
-        
-        this.vao = gl.createVertexArray()
-        gl.bindVertexArray(this.vao)
-        Object.keys(attributes).forEach(attributeName => {
-
-            const bufferDesc = new BufferAttribDescriptor(gl, attributes[attributeName])
-            this.geometryBuffers[attributeName] = bufferDesc
-            bufferDesc.setAttributes()
-            bufferDesc.bufferData(attributes[attributeName].data)
-        })
-        if(indices) this.geometryBuffers.indices = createIndicesBuffer(gl, indices)
-        gl.bindVertexArray(null)
-        return this
-    }
-    setBufferAttribData(name, type, numElements, location){
-        const {gl, vao} = this
-        const attribProps = attribTypeProps[type]
-   
-        const attributeProps = {...attribProps,  location}
-        const bufferDesc = new BufferAttribDescriptor(gl, attributeProps)
+    createBufferAttribData(name, type, params){
+        const {gl} = this
+        const attribProps = getAttributePropsByType(type)
+        const attributeProps = {...attribProps,  ...params}
+        const bufferAttribData = new BufferAttribute(gl, attributeProps)
         this.buffers = {...this.buffers,
-             [name] : bufferDesc}
-        
-        bufferDesc.bufferData(null, numElements * attribProps.byteLength)
-      
+             [name] : bufferAttribData}
         return this
     }
-    setDynamicBufferAttribData(name, type, numElements, location){
-        const {gl, vao} = this
-        const attribProps = attribTypeProps[type]
-        const attributeProps = {...attribProps, byteLength : numElements * attribProps.byteLength, location}
-        const bufferDesc = new DynamicBufferAttribDescriptor(gl, attributeProps)
+    setBufferAttribData(name, bufferAttribData){
         this.buffers = {...this.buffers,
-             [name] : bufferDesc}
-       
+             [name] : bufferAttribData}
         return this
     }
-    setAttributes(name, divisor){
-        const bufferDesc = this.buffers[name]
+    setOwnAttribute(name, divisor){
+        const bufferAttribData = this.buffers[name]
         this.gl.bindVertexArray(this.vao)
-        bufferDesc.setAttributes(divisor)
+        bufferAttribData.setAttribute(divisor)
         this.gl.bindVertexArray(null)
         return this
     }
-    bufferData(bufferName, data, byteLength){
-        const bufferDesc = this.buffers[bufferName]
-        bufferDesc.bufferData(data, byteLength)
+    setAttribute(bufferAttribData){
+        this.gl.bindVertexArray(this.vao)
+        bufferAttribData.setAttribute()
+        this.gl.bindVertexArray(null)
+        return this
+    }
+    bufferData(bufferName, data, byteLength, usage){
+        const bufferAttribData = this.buffers[bufferName]
+        bufferAttribData.bufferData(data, byteLength, usage)
         return this
     }
     bufferSubData(bufferName, data, offset){
@@ -98,14 +103,11 @@ class PrimitiveRenderer{
         return this
     }
     draw( uniforms, cameraMatrix){
-        
         this.drawer.draw(this, uniforms, cameraMatrix)
         return this
     }
-    
     drawInstanced( uniforms, cameraMatrix, numInstances){
-        
-        this.drawer.drawInstanced( this, uniforms, cameraMatrix, numInstances)
+        this.drawer.drawInstanced(this, uniforms, cameraMatrix, numInstances)
         return this
     }
 }

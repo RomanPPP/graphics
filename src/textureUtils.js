@@ -33,8 +33,8 @@ const makeStripeImg =  (options)=> {
     options = options || {}
     var width  = options.width  || 4
     var height = options.height || 4
-    var color1 = options.color1 || "rgba(1,0,0,0.1)"
-    var color2 = options.color2 || "rgba(1,1,1,0.5)"
+    var color1 = options.color1 || "rgba(1,0,0,0.5)"
+    var color2 = options.color2 || "rgba(0,0,1,1)"
     const ctx = document.createElement("canvas").getContext("2d")
     setCanvasSize(ctx, width, height);
   
@@ -55,14 +55,14 @@ const makeImgFromSvgXml = ( xml, options = {}) =>{
     
     const width  = options.width  || 100
     const height = options.height || 100
-    const x = options.x || 0
-    const y = options.y || 0
+    const x = options.x || 1
+    const y = options.y || 50
 
     const ctx = document.createElement("canvas").getContext("2d")
     setCanvasSize(ctx, width, height)
     
     ctx.drawImage(img, x, y, width, height)
-    ctx.fillStyle = "rgba(0,0,0,0.1)"
+    ctx.fillStyle = "rgba(0,0,0,1)"
     ctx.fillRect(0, 0, width, height )
     return ctx.img
 }
@@ -72,6 +72,7 @@ const setTextureUnits = (gl, texture, unitNum) => {
 }
 
 class Texture{
+    static makeImgFromSvgXml = makeImgFromSvgXml
     constructor(gl){
         this.texture = gl.createTexture()
         this.fromImage = image =>{
@@ -84,11 +85,6 @@ class Texture{
             return this
         }
         this.getTexture = () => this.texture
-        this.setTextureUnit = num =>{
-            gl.activeTexture(gl.TEXTURE0 + num);
-            gl.bindTexture(gl.TEXTURE_2D, this.texture);
-            return this
-        }
     }
 }
-export { makeImgFromSvgXml, makeStripeImg, Texture}
+export { makeImgFromSvgXml, makeStripeImg, Texture, setTextureUnits}

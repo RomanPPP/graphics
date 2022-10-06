@@ -168,7 +168,7 @@ function createBoxGeometry(_a = 1, _b = 1, _c = 1){
                     TEXCOORD_0 : 3
                   },
                   indices : 2,
-                  mode : 3
+                  mode : 4
                 }
               ]
             }
@@ -177,7 +177,12 @@ function createBoxGeometry(_a = 1, _b = 1, _c = 1){
             {
               name : "Cube",
               mesh : 0,
-              children : [0]
+              children : [1]
+            },
+            {
+              name : 'Cube2',
+              mesh : 0,
+              translation : [1,1,1]
             }
           ]
         },
