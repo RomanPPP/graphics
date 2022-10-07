@@ -28,7 +28,7 @@ function resizeCanvasToDisplaySize(canvas, multiplier) {
     }
     return false;
   }
-class GLcontext{
+class GLcontextWrapper{
   constructor(canvas_id){
     const canvas = document.querySelector(`#${canvas_id}`);
     const gl = canvas.getContext("webgl2");
@@ -89,7 +89,7 @@ class GLcontext{
 
 
 export {
-  GLTF, GLcontext,
+  GLTF, GLcontextWrapper,
   Texture, makeImgFromSvgXml, makeStripeImg, Entity,
     PrimitiveRenderer, EntityDataFromGltf,
     resizeCanvasToDisplaySize,
