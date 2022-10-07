@@ -33,7 +33,6 @@ function expandedTypedArray(array){
   }
 
 function createUniformSetters(gl, program){
-    let textureUnit = 0
     const createTextureSetter = (program, uniformInfo)=>{
         const location = gl.getUniformLocation(program, uniformInfo.name)
        
@@ -51,105 +50,105 @@ function createUniformSetters(gl, program){
      
         const type = uniformInfo.type
 
-        const isArray = (uniformInfo.size > 1 && uniformInfo.name.substr(-3) === '[0]');
+        const isArray = (uniformInfo.size > 1 && uniformInfo.name.substr(-3) === '[0]')
         
         if (type === gl.FLOAT && isArray) {
         return function(v) {
-            gl.uniform1fv(location, v);
-        };
+            gl.uniform1fv(location, v)
+        }
         }
         if (type === gl.FLOAT) {
         return function(v) {
-            gl.uniform1f(location, v);
-        };
+            gl.uniform1f(location, v)
+        }
         }
         if (type === gl.FLOAT_VEC2) {
         return function(v) {
-            gl.uniform2fv(location, v);
-        };
+            gl.uniform2fv(location, v)
+        }
         }
         if (type === gl.FLOAT_VEC3) {
         return function(v) {
-            gl.uniform3fv(location, v);
-        };
+            gl.uniform3fv(location, v)
+        }
         }
         if (type === gl.FLOAT_VEC4) {
         return function(v) {
-            gl.uniform4fv(location, v);
-        };
+            gl.uniform4fv(location, v)
+        }
         }
         if (type === gl.INT && isArray) {
         return function(v) {
-            gl.uniform1iv(location, v);
-        };
+            gl.uniform1iv(location, v)
+        }
         }
         if (type === gl.INT) {
         return function(v) {
-            gl.uniform1i(location, v);
-        };
+            gl.uniform1i(location, v)
+        }
         }
         if (type === gl.INT_VEC2) {
         return function(v) {
-            gl.uniform2iv(location, v);
-        };
+            gl.uniform2iv(location, v)
+        }
         }
         if (type === gl.INT_VEC3) {
         return function(v) {
-            gl.uniform3iv(location, v);
-        };
+            gl.uniform3iv(location, v)
+        }
         }
         if (type === gl.INT_VEC4) {
         return function(v) {
-            gl.uniform4iv(location, v);
-        };
+            gl.uniform4iv(location, v)
+        }
         }
         if (type === gl.BOOL) {
         return function(v) {
-            gl.uniform1iv(location, v);
-        };
+            gl.uniform1iv(location, v)
+        }
         }
         if (type === gl.BOOL_VEC2) {
         return function(v) {
-            gl.uniform2iv(location, v);
-        };
+            gl.uniform2iv(location, v)
+        }
         }
         if (type === gl.BOOL_VEC3) {
         return function(v) {
-            gl.uniform3iv(location, v);
-        };
+            gl.uniform3iv(location, v)
+        }
         }
         if (type === gl.BOOL_VEC4) {
         return function(v) {
-            gl.uniform4iv(location, v);
-        };
+            gl.uniform4iv(location, v)
+        }
         }
         if (type === gl.FLOAT_MAT2) {
         return function(v) {
-            gl.uniformMatrix2fv(location, false, v);
-        };
+            gl.uniformMatrix2fv(location, false, v)
+        }
         }
         if (type === gl.FLOAT_MAT3) {
         return function(v) {
             gl.uniformMatrix3fv(location, false, v);
-        };
+        }
         }
         if (type === gl.FLOAT_MAT4) {
         return function(v) {
-            gl.uniformMatrix4fv(location, false, v);
-        };
+            gl.uniformMatrix4fv(location, false, v)
+        }
         }
         
     }
     const uniformSetters = {}
     const textureSetters = {}
-    const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+    const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
     
     for (let ii = 0; ii < numUniforms; ++ii) {
-      const uniformInfo = gl.getActiveUniform(program, ii);
+      const uniformInfo = gl.getActiveUniform(program, ii)
       if (!uniformInfo) {
-        break;
+        break
       }
-      let name = uniformInfo.name;
+      let name = uniformInfo.name
       if(uniformInfo.type === gl.SAMPLER_2D){
         textureSetters[name] = createTextureSetter(program, uniformInfo)
         continue
@@ -157,17 +156,17 @@ function createUniformSetters(gl, program){
       
       
       if (name.substr(-3) === '[0]') {
-        name = name.substr(0, name.length - 3);
+        name = name.substr(0, name.length - 3)
       }
       if(uniformInfo.size > 1){
         for(let i = 0; i < uniformInfo.size; i++){
           const obj = {size : uniformInfo.size, type : uniformInfo.type, name : name + `[${i}]`}
-          uniformSetters[name + `[${i}]`] = createUniformSetter(program, obj );
+          uniformSetters[name + `[${i}]`] = createUniformSetter(program, obj )
         }
       }
       else{
-        const setter = createUniformSetter(program, uniformInfo);
-        uniformSetters[name] = setter;
+        const setter = createUniformSetter(program, uniformInfo)
+        uniformSetters[name] = setter
       }
       
     }
@@ -187,14 +186,19 @@ class ProgramInfo{
         this.gl = null
       
     }
+    setContext(glContextWrapper){
+        this.context = glContextWrapper
+        return this
+    }
     createUniformSetters(){
-        const {uniformSetters, textureSetters} = createUniformSetters(this.gl, this.program)
+        const {gl} = this.context
+        const {uniformSetters, textureSetters} = createUniformSetters(gl, this.program)
         this.textureSetters = textureSetters
         this.uniformSetters = uniformSetters
         return this
     }
-    compileShaders(gl){
-        this.gl = gl
+    compileShaders(){
+        const {gl} = this.context
         this.vertexShader = gl.createShader(gl.VERTEX_SHADER)
         gl.shaderSource(this.vertexShader, this.vs)
         gl.compileShader(this.vertexShader)
@@ -220,7 +224,7 @@ class ProgramInfo{
         return this
     }
     setUniforms(uniforms){
-        this.gl.useProgram(this.program)
+        this.context.useProgramInfo(this)
         Object.keys(uniforms).forEach(name=>{
             const setter = this.uniformSetters[name]
             if(setter) setter(uniforms[name])
@@ -228,7 +232,7 @@ class ProgramInfo{
         return this
     }
     setTextureUniformUnit(name, unit){
-        this.gl.useProgram(this.program)
+        this.context.useProgramInfo(this)
         const setter = this.textureSetters[name]
         if(setter) setter(unit)
         return this

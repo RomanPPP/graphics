@@ -38,6 +38,26 @@ class GLcontext{
     }
     this.gl = gl
     this.textures = {}
+    this.renderCache = {
+      lastUsedProgramInfo : null
+    }
+    this.programs = {
+
+    }
+  }
+  getLastUsedProgramInfo(){
+    return this.renderCache.lastUsedProgramInfo
+  }
+  setLastUsedProgram(programInfo){
+    this.renderCache.lastUsedProgramInfo = programInfo
+    return this
+  }
+  useProgramInfo(programInfo){
+    if(programInfo != this.getLastUsedProgramInfo()){
+      this.gl.useProgram(programInfo.program)
+      this.setLastUsedProgram(programInfo)
+    }
+    return this
   }
   resizeCanvasToDisplaySize(multiplier = 1){
     const canvas = this.gl.canvas

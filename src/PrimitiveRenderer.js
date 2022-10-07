@@ -10,7 +10,7 @@ class PrimitiveRenderer{
     constructor(arrayData){
         this.buffers = {}
         this.programInfo = null
-        this.gl = null
+        this.context = null
         this.drawer = null
         this.mode = null
         this.offset = null
@@ -19,12 +19,13 @@ class PrimitiveRenderer{
         this.componentType = null
         this.arrayData = arrayData
     }
-    setContext(gl){
-        this.gl = gl
+    setContext(glContextWrapper){
+        this.context = glContextWrapper
         return this
     }
     createGeometryBuffers(){
-        const {arrayData, gl} = this
+        const {arrayData} = this
+        const {gl} = this.context
         const {attributes, indices, componentType, numElements, mode} = arrayData
         this.numElements = numElements
         this.mode = mode
@@ -44,15 +45,15 @@ class PrimitiveRenderer{
         return this
     }
     setAttributes(){
-        const gl = this.gl
+        const {gl} = this.context
         const vao = gl.createVertexArray()
-        this.gl.bindVertexArray(vao)
+        gl.bindVertexArray(vao)
         for(const attrib in this.buffers){
             const bufferAttributeDescriptor = this.buffers[attrib]
             bufferAttributeDescriptor.setAttribute()
         }
-        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indices)
-        this.gl.bindVertexArray(null)
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices)
+        gl.bindVertexArray(null)
         this.vao = vao
         
         return this
@@ -66,7 +67,7 @@ class PrimitiveRenderer{
         return this
     }
     createBufferAttribData(name, type, params){
-        const {gl} = this
+        const {gl} = this.context
         const attribProps = getAttributePropsByType(type)
         const attributeProps = {...attribProps,  ...params}
         const bufferAttribData = new BufferAttribute(gl, attributeProps)
@@ -80,16 +81,18 @@ class PrimitiveRenderer{
         return this
     }
     setOwnAttribute(name, divisor){
+        const {gl} = this.context
         const bufferAttribData = this.buffers[name]
-        this.gl.bindVertexArray(this.vao)
+        gl.bindVertexArray(this.vao)
         bufferAttribData.setAttribute(divisor)
-        this.gl.bindVertexArray(null)
+        gl.bindVertexArray(null)
         return this
     }
     setAttribute(bufferAttribData){
-        this.gl.bindVertexArray(this.vao)
+        const {gl} = this.context
+        gl.bindVertexArray(this.vao)
         bufferAttribData.setAttribute()
-        this.gl.bindVertexArray(null)
+        gl.bindVertexArray(null)
         return this
     }
     bufferData(bufferName, data, byteLength, usage){

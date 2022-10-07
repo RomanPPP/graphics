@@ -6,13 +6,13 @@ class MeshRenderer{
     constructor({primitives, name}){
         this.primitives = primitives
         this.name = name
-        this.gl = null
+        this.context = null
         this.buffers = {}
     }
-    setContext(gl){
-        this.gl = gl
+    setContext(glContextWrapper){
+        this.context = glContextWrapper
         for(let i = 0, n = this.primitives.length; i < n; i++){
-            this.primitives[i].setContext(gl)
+            this.primitives[i].setContext(glContextWrapper)
         }
         return this
     }
@@ -45,7 +45,7 @@ class MeshRenderer{
         return this
     }
     createBufferAttribData(name, type, params){
-        const {gl} = this
+        const {gl} = this.context
         const attribProps = getAttributePropsByType(type)
         const attributeProps = {...attribProps,  ...params}
         const bufferAttribData = new BufferAttribute(gl, attributeProps)
