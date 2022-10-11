@@ -1,7 +1,7 @@
 import {BufferInfo, DynamicBufferInfo} from './src/BufferAttribute'
 import {PrimitiveRenderInfoFromArrayData, ArrayDataFromGltf, EntityDataFromGltf, GLTF} from './src/gltfUtils'
 import { MeshRenderer, SkinnedMeshRenderer } from './src/MeshRenderer';
-import {createBoxGeometry} from './src/primitives'
+import {createBox, createCone} from './src/primitives'
 import PrimitiveRenderer from './src/PrimitiveRenderer'
 import { getGLTypeForTypedArray, ProgramInfo, expandedTypedArray} from './src/programInfo';
 import Drawer from './src/Drawer';
@@ -66,10 +66,19 @@ class GLcontextWrapper{
     
     canvas.width  = width
     canvas.height = height
-      return this
+    return this
+  }
+  resizeCanvas(width, height){
+    const canvas = this.gl.canvas
+    canvas.width  = width
+    canvas.height = height
+    return this
   }
   getContext(){
     return this.gl
+  }
+  getCanvasRect(){
+    return this.gl.canvas.getBoundin
   }
   createTexture(textureName){
     const texture = new Texture(this.gl)
@@ -96,8 +105,8 @@ export {
     getGlContext,
     PrimitiveRenderInfoFromArrayData, ArrayDataFromGltf,
     MeshRenderer, SkinnedMeshRenderer,
-    createBoxGeometry, 
+    createBox, 
     ProgramInfo,
-    Drawer
+    Drawer, createCone
 }
 
