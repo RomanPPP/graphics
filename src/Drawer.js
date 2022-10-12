@@ -12,15 +12,25 @@ class Drawer{
   constructor(){
     this.context = null
     this.projectionMatrix = null
+    this.fieldOfViewRadians = degToRad(90)
   }
   setContext(glContextWrapper){
     this.context = glContextWrapper
+    
+  }
+  setFieldOfView(angle){
+    this.fieldOfViewRadians = degToRad(angle)
+    return this
+  }
+  update3DProjectionMatrix(zNear = 0.01, zFar = 2000){
     const {gl} = this.context
     const zNear = 0.01
     const zFar = 2000
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     this.projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar)
+    return this
   }
+  
   getViewProjectionMatrix(cameraMatrix){
     const {projectionMatrix} = this
     const {gl} = this.context
