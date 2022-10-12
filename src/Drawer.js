@@ -16,7 +16,7 @@ class Drawer{
   }
   setContext(glContextWrapper){
     this.context = glContextWrapper
-    
+    return this
   }
   setFieldOfView(angle){
     this.fieldOfViewRadians = degToRad(angle)
