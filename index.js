@@ -21,7 +21,7 @@ import {
   setTextureUnits,
 } from "./src/textureUtils";
 import Entity from "./src/entity";
-
+import { lightingProgram, defaultProgram } from "./src/render/shaders";
 class GLcontextWrapper {
   constructor(canvas_id) {
     const canvas = document.querySelector(`#${canvas_id}`);
@@ -105,4 +105,6 @@ export {
   Drawer,
   createCone,
   createCircle,
+  lightingProgram,
+  defaultProgram,
 };
