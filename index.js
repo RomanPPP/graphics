@@ -6,7 +6,7 @@ import {
   GLTF,
 } from "./src/gltfUtils";
 import { MeshRenderer, SkinnedMeshRenderer } from "./src/MeshRenderer";
-import { createBox, createCone, createCircle } from "./src/primitives";
+import { createBox, createCone, createCircle, createSphere } from "./src/primitives";
 import PrimitiveRenderer from "./src/PrimitiveRenderer";
 import {
   getGLTypeForTypedArray,
@@ -20,7 +20,7 @@ import {
   makeStripeImg,
   setTextureUnits,
 } from "./src/textureUtils";
-import Entity from "./src/entity";
+import Model from "./src/Model";
 import { lightingProgram, defaultProgram } from "./src/render/shaders";
 class GLcontextWrapper {
   constructor(canvas_id) {
@@ -93,7 +93,7 @@ export {
   Texture,
   makeImgFromSvgXml,
   makeStripeImg,
-  Entity,
+  Model,
   PrimitiveRenderer,
   EntityDataFromGltf,
   PrimitiveRenderInfoFromArrayData,
@@ -107,4 +107,5 @@ export {
   createCircle,
   lightingProgram,
   defaultProgram,
+  createSphere
 };

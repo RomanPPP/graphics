@@ -335,7 +335,7 @@ const createCircle = (radius, numCorners) => {
     const angle = (2 * i * Math.PI) / numCorners;
     const x = Math.cos(angle) * radius;
     const z = Math.sin(angle) * radius;
-   
+
     vertices.push(x, 0, z);
     normals.push(0, 1, 0);
   }
@@ -378,4 +378,113 @@ const createCircle = (radius, numCorners) => {
   return ArrayData;
 };
 
-export { createBox, createCone, createCircle};
+const createSphere = (
+  radius,
+  subdivisionsAxis,
+  subdivisionsHeight,
+  opt_startLatitudeInRadians,
+  opt_endLatitudeInRadians,
+  opt_startLongitudeInRadians,
+  opt_endLongitudeInRadians
+) => {
+  if (subdivisionsAxis <= 0 || subdivisionsHeight <= 0) {
+    throw new Error("subdivisionAxis and subdivisionHeight must be > 0");
+  }
+
+  opt_startLatitudeInRadians = opt_startLatitudeInRadians || 0;
+  opt_endLatitudeInRadians = opt_endLatitudeInRadians || Math.PI;
+  opt_startLongitudeInRadians = opt_startLongitudeInRadians || 0;
+  opt_endLongitudeInRadians = opt_endLongitudeInRadians || Math.PI * 2;
+
+  const latRange = opt_endLatitudeInRadians - opt_startLatitudeInRadians;
+  const longRange = opt_endLongitudeInRadians - opt_startLongitudeInRadians;
+
+
+  const positions = [];
+  const normals = [];
+  const texcoords = [];
+
+  for (let y = 0; y <= subdivisionsHeight; y++) {
+    for (let x = 0; x <= subdivisionsAxis; x++) {
+  
+      const u = x / subdivisionsAxis;
+      const v = y / subdivisionsHeight;
+      const theta = longRange * u + opt_startLongitudeInRadians;
+      const phi = latRange * v + opt_startLatitudeInRadians;
+      const sinTheta = Math.sin(theta);
+      const cosTheta = Math.cos(theta);
+      const sinPhi = Math.sin(phi);
+      const cosPhi = Math.cos(phi);
+      const ux = cosTheta * sinPhi;
+      const uy = cosPhi;
+      const uz = sinTheta * sinPhi;
+      positions.push(radius * ux, radius * uy, radius * uz);
+      normals.push(ux, uy, uz);
+      texcoords.push(1 - u, v);
+    }
+  }
+
+  const numVertsAround = subdivisionsAxis + 1;
+  const indices = [];
+  for (let x = 0; x < subdivisionsAxis; x++) {
+   
+    for (let y = 0; y < subdivisionsHeight; y++) {
+
+      indices.push(
+        (y + 0) * numVertsAround + x,
+        (y + 0) * numVertsAround + x + 1,
+        (y + 1) * numVertsAround + x
+      );
+      indices.push(
+        (y + 1) * numVertsAround + x,
+        (y + 0) * numVertsAround + x + 1,
+        (y + 1) * numVertsAround + x + 1
+      );
+    }
+  }
+  const _positions = new Float32Array(positions);
+  const _normals = new Float32Array(normals);
+  const _texcoords = new Float32Array(texcoords);
+  const _indices = new Uint16Array(indices);
+
+  return {
+    attributes: {
+      POSITION: {
+        location: 0,
+        count: positions.length,
+        offset: 0,
+        stride: 0,
+        numComponents: 3,
+        type: 5126,
+        data: _positions,
+        byteLength: _positions.byteLength,
+      },
+      NORMAL: {
+        location: 1,
+        count: normals.length,
+        numComponents: 3,
+        offset: 0,
+        stride: 0,
+        type: 5126,
+        data: _normals,
+        byteLength: _normals.byteLength,
+      },
+      TEXCOORD_0: {
+        data: _texcoords,
+        count: _texcoords.length,
+        type: 5126,
+        offset: 0,
+        stride: 0,
+        byteLength: _texcoords.byteLength,
+        location: 4,
+        numComponents: 2,
+      },
+    },
+    componentType: 5123,
+    indices: _indices,
+    numElements: indices.length,
+    mode: 4,
+  };
+};
+
+export { createBox, createCone, createCircle, createSphere };

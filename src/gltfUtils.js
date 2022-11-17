@@ -77,7 +77,7 @@ const EntityDataFromGltf = (gltf, buffers) =>
 
 class GLTF {
   constructor(gltf, binaryBuffers) {
-    const { nodes, meshes, skins } = gltf;
+    const { nodes } = gltf;
     this.nodes = nodes;
     this.meshes = ArrayDataFromGltf(gltf, binaryBuffers);
   }
