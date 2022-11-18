@@ -49,15 +49,15 @@ class Drawer {
     } = renderInfo;
     const { gl } = this.context;
 
-    const worldViewProjection = m4.multiply(
+    const u_worldViewProjection = m4.multiply(
       viewProjectionMatrix,
       uniforms.u_matrix
     );
-    const worldMatrix = uniforms.u_matrix;
+  
     this.context.useProgramInfo(programInfo);
     this.context
       .getLastUsedProgramInfo()
-      .setUniforms({ ...uniforms, worldMatrix, worldViewProjection });
+      .setUniforms({ ...uniforms,  u_worldViewProjection });
     if (vao) gl.bindVertexArray(vao);
     if (!indices) {
       gl.drawArrays(mode, offset, numElements);

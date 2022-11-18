@@ -74,12 +74,15 @@ const setTextureUnits = (gl, texture, unitNum) => {
   gl.bindTexture(gl.TEXTURE_2D, texture);
 };
 
-class Texture {
+class TextureInfo {
   static makeImgFromSvgXml = makeImgFromSvgXml;
   constructor(gl) {
     this.texture = gl.createTexture();
-    this.fromImage = (image) => {
-      gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    this.gl = gl
+  }
+  fromImage(image){
+    const {gl} = this
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -92,9 +95,10 @@ class Texture {
         gl.UNSIGNED_BYTE,
         image
       );
-      return this;
-    };
-    this.getTexture = () => this.texture;
+    return this;
+  }
+  getTexture(){
+    return this.texture
   }
 }
-export { makeImgFromSvgXml, makeStripeImg, Texture, setTextureUnits };
+export { makeImgFromSvgXml, makeStripeImg, TextureInfo};

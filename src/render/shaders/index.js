@@ -1,4 +1,4 @@
-import defaultProgram from "./Default";
-import lightingProgram from "./Lighting";
+import defaultShaders from "./default";
+import pointLightShaders from "./pointLight";
 
-export {defaultProgram, lightingProgram}
+export {defaultShaders, pointLightShaders}
