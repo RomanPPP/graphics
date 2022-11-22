@@ -399,14 +399,12 @@ const createSphere = (
   const latRange = opt_endLatitudeInRadians - opt_startLatitudeInRadians;
   const longRange = opt_endLongitudeInRadians - opt_startLongitudeInRadians;
 
-
   const positions = [];
   const normals = [];
   const texcoords = [];
 
   for (let y = 0; y <= subdivisionsHeight; y++) {
     for (let x = 0; x <= subdivisionsAxis; x++) {
-  
       const u = x / subdivisionsAxis;
       const v = y / subdivisionsHeight;
       const theta = longRange * u + opt_startLongitudeInRadians;
@@ -427,9 +425,7 @@ const createSphere = (
   const numVertsAround = subdivisionsAxis + 1;
   const indices = [];
   for (let x = 0; x < subdivisionsAxis; x++) {
-   
     for (let y = 0; y < subdivisionsHeight; y++) {
-
       indices.push(
         (y + 0) * numVertsAround + x,
         (y + 0) * numVertsAround + x + 1,
@@ -486,5 +482,144 @@ const createSphere = (
     mode: 4,
   };
 };
+const createTruncatedCone = (
+  bottomRadius,
+  topRadius,
+  height,
+  radialSubdivisions,
+  verticalSubdivisions,
+  opt_topCap,
+  opt_bottomCap
+) => {
+  if (radialSubdivisions < 3) {
+    throw new Error("radialSubdivisions must be 3 or greater");
+  }
 
-export { createBox, createCone, createCircle, createSphere };
+  if (verticalSubdivisions < 1) {
+    throw new Error("verticalSubdivisions must be 1 or greater");
+  }
+
+  const topCap = opt_topCap === undefined ? true : opt_topCap;
+  const bottomCap = opt_bottomCap === undefined ? true : opt_bottomCap;
+
+  const extra = (topCap ? 2 : 0) + (bottomCap ? 2 : 0);
+
+  const numVertices =
+    (radialSubdivisions + 1) * (verticalSubdivisions + 1 + extra);
+  const positions = [];
+  const normals = [];
+  const texcoords = [];
+  const indices = [];
+
+  const vertsAroundEdge = radialSubdivisions + 1;
+
+  const slant = Math.atan2(bottomRadius - topRadius, height);
+  const cosSlant = Math.cos(slant);
+  const sinSlant = Math.sin(slant);
+
+  const start = topCap ? -2 : 0;
+  const end = verticalSubdivisions + (bottomCap ? 2 : 0);
+
+  for (let yy = start; yy <= end; ++yy) {
+    let v = yy / verticalSubdivisions;
+    let y = height * v;
+    let ringRadius;
+    if (yy < 0) {
+      y = 0;
+      v = 1;
+      ringRadius = bottomRadius;
+    } else if (yy > verticalSubdivisions) {
+      y = height;
+      v = 1;
+      ringRadius = topRadius;
+    } else {
+      ringRadius =
+        bottomRadius + (topRadius - bottomRadius) * (yy / verticalSubdivisions);
+    }
+    if (yy === -2 || yy === verticalSubdivisions + 2) {
+      ringRadius = 0;
+      v = 0;
+    }
+    y -= height / 2;
+    for (let ii = 0; ii < vertsAroundEdge; ++ii) {
+      const sin = Math.sin((ii * Math.PI * 2) / radialSubdivisions);
+      const cos = Math.cos((ii * Math.PI * 2) / radialSubdivisions);
+      positions.push(sin * ringRadius, y, cos * ringRadius);
+      if (yy < 0) {
+        normals.push(0, -1, 0);
+      } else if (yy > verticalSubdivisions) {
+        normals.push(0, 1, 0);
+      } else if (ringRadius === 0.0) {
+        normals.push(0, 0, 0);
+      } else {
+        normals.push(sin * cosSlant, sinSlant, cos * cosSlant);
+      }
+      texcoords.push(ii / radialSubdivisions, 1 - v);
+    }
+  }
+
+  for (let yy = 0; yy < verticalSubdivisions + extra; ++yy) {
+    if (
+      (yy === 1 && topCap) ||
+      (yy === verticalSubdivisions + extra - 2 && bottomCap)
+    ) {
+      continue;
+    }
+    for (let ii = 0; ii < radialSubdivisions; ++ii) {
+      indices.push(
+        vertsAroundEdge * (yy + 0) + 0 + ii,
+        vertsAroundEdge * (yy + 0) + 1 + ii,
+        vertsAroundEdge * (yy + 1) + 1 + ii
+      );
+      indices.push(
+        vertsAroundEdge * (yy + 0) + 0 + ii,
+        vertsAroundEdge * (yy + 1) + 1 + ii,
+        vertsAroundEdge * (yy + 1) + 0 + ii
+      );
+    }
+  }
+  const _positions = new Float32Array(positions);
+  const _normals = new Float32Array(normals);
+  const _texcoords = new Float32Array(texcoords);
+  const _indices = new Uint16Array(indices);
+  return {
+    attributes: {
+      POSITION: {
+        location: 0,
+        count: positions.length,
+        offset: 0,
+        stride: 0,
+        numComponents: 3,
+        type: 5126,
+        data: _positions,
+        byteLength: _positions.byteLength,
+      },
+      NORMAL: {
+        location: 1,
+        count: normals.length,
+        numComponents: 3,
+        offset: 0,
+        stride: 0,
+        type: 5126,
+        data: _normals,
+        byteLength: _normals.byteLength,
+      },
+      TEXCOORD_0: {
+        data: _texcoords,
+        count: _texcoords.length,
+        type: 5126,
+        offset: 0,
+        stride: 0,
+        byteLength: _texcoords.byteLength,
+        location: 4,
+        numComponents: 2,
+      },
+    },
+    componentType: 5123,
+    indices: _indices,
+    numElements: indices.length,
+    mode: 4,
+  };
+};
+
+export { createBox, createCone, createCircle, createSphere, createTruncatedCone};

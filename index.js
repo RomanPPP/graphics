@@ -11,6 +11,7 @@ import {
   createCone,
   createCircle,
   createSphere,
+  createTruncatedCone
 } from "./src/primitives";
 import PrimitiveRenderer from "./src/PrimitiveRenderer";
 import {
@@ -50,4 +51,5 @@ export {
   defaultShaders,
   pointLightShaders,
   createSphere,
+  createTruncatedCone
 };
