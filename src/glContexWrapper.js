@@ -35,6 +35,7 @@ export default class GLcontextWrapper {
   
       canvas.width = width;
       canvas.height = height;
+      
       return this;
     }
     resizeCanvas(width, height) {
@@ -43,11 +44,12 @@ export default class GLcontextWrapper {
       canvas.height = height;
       return this;
     }
+    setViewport(){
+      this.gl.viewport(0, 0, this.gl.canvas.width,  this.gl.canvas.height);
+      return this
+    }
     getContext() {
       return this.gl;
-    }
-    getCanvasRect() {
-      return this.gl.canvas.getBoundin;
     }
     createTextureInfo(textureName) {
       const texture = new TextureInfo(this.gl);

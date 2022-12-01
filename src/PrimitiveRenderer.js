@@ -39,6 +39,18 @@ class PrimitiveRenderer {
     this.mode = mode
     return this
   }
+  setIndices(array){
+    const {context, vao} = this
+    const {gl} = context
+    gl.bindVertexArray(vao)
+    this.numElements = array.length
+    const indicesBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(array),  gl.STATIC_DRAW);
+    gl.bindVertexArray(null)
+    this.indices = indicesBuffer;
+    return this
+  }
   createGeometryBuffers() {
     const { arrayData } = this;
     const { gl } = this.context;

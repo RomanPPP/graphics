@@ -1,5 +1,7 @@
 import { expandedTypedArray } from "./programInfo.js";
+
 import {vec3} from 'math'
+
 const { cross, diff, normalize } = vec3
 
 const linedBoxIndices = new Uint16Array([
