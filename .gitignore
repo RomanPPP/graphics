@@ -16,9 +16,12 @@ jspm_packages/
 
 webpack.config.js
 
-src/main.js
-
+main.js
+textureShaders.js
 src/render/svg/
+src/skin.js
+src/GltfUtils.js
+src/Model.js
 
 index.html
 

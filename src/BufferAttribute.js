@@ -1,11 +1,6 @@
-import { getGLTypeForTypedArray } from "./programInfo";
+
 import { TYPED_ARRAYS } from "./enums";
-const createIndicesBuffer = (gl, indices) => {
-  const buffer = gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-  return buffer;
-};
+
 const floatAttribSetter = (props) => {
   const {
     numComponents,
@@ -71,41 +66,7 @@ attribTypeMap[0x1405] = intAttribSetter;
 attribTypeMap[0x1402] = intAttribSetter;
 attribTypeMap[0x1403] = intAttribSetter;
 
-const setAttributes = (gl, bufferInfo, divisor) => {
-  const { type } = bufferInfo;
-  const setter = attribTypeMap[type];
-  setter(bufferInfo, divisor);
-};
-class BufferController {
-  constructor(gl, target = 0x8892) {
-    this.target = target;
-    this.buffer = gl.createBuffer();
-    this.gl = gl;
-    this.bufferData = (data, byteLength, usage = gl.STATIC_DRAW) => {
-      gl.bindBuffer(target, this.buffer);
-      gl.bufferData(target, data || byteLength, usage);
-    };
-    this.bufferSubData = (data, offset = 0) => {
-      gl.bindBuffer(target, this.buffer);
-      gl.bufferSubData(target, offset, data);
-    };
-  }
-}
-class AttributeSetter {
-  constructor(info) {
-    this.stride = info.stride || 0;
-    this.numComponents = info.numComponents;
-    this.numAttributes = info.numAttributes || 1;
-    this.offset = info.offset || 0;
-    this.type = info.type;
-    this.location = info.location;
-  }
-  setAttribute(bufferController, divisor) {
-    const { type } = this;
-    const setter = attribTypeMap[type];
-    setter(this, bufferController, divisor);
-  }
-}
+
 class BufferAttribute {
   constructor(gl, info) {
     this.gl = gl;
@@ -137,7 +98,5 @@ class BufferAttribute {
 
 export {
   BufferAttribute,
-  createIndicesBuffer,
-  AttributeSetter,
-  BufferController,
+  
 };

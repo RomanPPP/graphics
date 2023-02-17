@@ -1,4 +1,4 @@
-import { expandedTypedArray } from "./programInfo.js";
+import { expandedTypedArray } from "./misc";
 
 import {vec3} from 'math'
 

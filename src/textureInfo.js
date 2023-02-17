@@ -17,6 +17,7 @@ const makeTexture = (gl, ctx) => {
   );
   return tex;
 };
+
 const makeStripeTexture = (gl, options) => {
   options = options || {};
   var width = options.width || 4;
@@ -33,6 +34,7 @@ const makeStripeTexture = (gl, options) => {
 
   return makeTexture(gl, ctx);
 };
+
 const makeStripeImg = (options) => {
   options = options || {};
   var width = options.width || 4;
@@ -49,6 +51,7 @@ const makeStripeImg = (options) => {
 
   return ctx.canvas;
 };
+
 const makeImgFromSvgXml = (xml, options = {}) => {
   const img = document.createElement("img");
   var svg64 = btoa(xml);
@@ -69,36 +72,60 @@ const makeImgFromSvgXml = (xml, options = {}) => {
   ctx.fillRect(0, 0, width, height);
   return ctx.img;
 };
-const setTextureUnits = (gl, texture, unitNum) => {
-  gl.activeTexture(gl.TEXTURE0 + unitNum);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+const requestCORSIfNotSameOrigin = (img, url) => {
+  if (new URL(url, window.location.href).origin !== window.location.origin) {
+    img.crossOrigin = "";
+  }
 };
 
 class TextureInfo {
   static makeImgFromSvgXml = makeImgFromSvgXml;
-  constructor(gl) {
-    this.texture = gl.createTexture();
-    this.gl = gl
+  constructor(gl, numFacesX, numFacesY) {
+    this.numFacesX = numFacesX
+    this.numFacesY = numFacesY
+    this.width = null
+    this.height = null
+    this.gl = gl;
   }
-  fromImage(image){
-    const {gl} = this
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        image
-      );
+  createTextureFromURL(url, ) {
+    const { gl } = this;
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      1,
+      1,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      new Uint8Array([0, 0, 255, 255])
+    );
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    var img = new Image();
+    img.addEventListener("load", function () {
+      this.width = img.width
+      this.height = img.height
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+      gl.generateMipmap(gl.TEXTURE_2D);
+    });
+    requestCORSIfNotSameOrigin(img, url);
+    img.src = url;
+
+    return texture;
+  }
+  setTextureUnit(unitNum) {
+    const {gl, texture } = this
+
+    gl.activeTexture(gl.TEXTURE0 + unitNum);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
     return this;
   }
-  getTexture(){
-    return this.texture
-  }
 }
-export { makeImgFromSvgXml, makeStripeImg, TextureInfo};
+export { makeImgFromSvgXml, makeStripeImg, TextureInfo };

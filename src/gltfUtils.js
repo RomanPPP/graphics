@@ -2,7 +2,7 @@ import PrimitiveRenderer from "./PrimitiveRenderer";
 import { MeshRenderer } from "./MeshRenderer";
 import { AttributeSetter, BufferController } from "./BufferAttribute";
 import { NUM_COMPONENTS, TYPED_ARRAYS, LOCATIONS } from "./enums";
-
+/// TODO ///
 const ArrayDataFromGltf = (gltf, buffers) => {
   const { bufferViews, accessors, meshes, nodes } = gltf;
   const attribDataFromAccessor = (accessor) => {

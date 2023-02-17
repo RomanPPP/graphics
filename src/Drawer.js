@@ -5,8 +5,8 @@ const degToRad = (d) => (d * Math.PI) / 180;
 const fieldOfViewRadians = degToRad(90);
 
 class Drawer {
-  constructor() {
-    this.context = null;
+  constructor(context) {
+    this.context = context;
     this.projectionMatrix = null;
     this.fieldOfViewRadians = degToRad(90);
   }
@@ -36,28 +36,24 @@ class Drawer {
     const viewMatrix = m4.inverse(cameraMatrix);
     return m4.multiply(projectionMatrix, viewMatrix);
   }
-  draw(renderInfo, uniforms, cameraMatrix) {
+  draw(
+    { vao, mode, offset, numElements, indices, componentType, programInfo },
+    uniforms,
+    cameraMatrix
+  ) {
     const viewProjectionMatrix = this.getViewProjectionMatrix(cameraMatrix);
-    const {
-      vao,
-      mode,
-      offset,
-      numElements,
-      indices,
-      componentType,
-      programInfo,
-    } = renderInfo;
+
     const { gl } = this.context;
 
     const u_worldViewProjection = m4.multiply(
       viewProjectionMatrix,
       uniforms.u_matrix
     );
-  
+
     this.context.useProgramInfo(programInfo);
     this.context
       .getLastUsedProgramInfo()
-      .setUniforms({ ...uniforms,  u_worldViewProjection });
+      .setUniforms({ ...uniforms, u_worldViewProjection });
     if (vao) gl.bindVertexArray(vao);
     if (!indices) {
       gl.drawArrays(mode, offset, numElements);
@@ -65,10 +61,15 @@ class Drawer {
     }
     gl.drawElements(mode, numElements, componentType, offset);
   }
-  drawInstanced(renderInfo, uniforms, cameraMatrix, numInstances) {
+  drawInstanced(
+    { vao, mode, offset, numElements, indices, programInfo },
+    uniforms,
+    cameraMatrix,
+    numInstances
+  ) {
     const viewProjectionMatrix = this.getViewProjectionMatrix(cameraMatrix);
     const { gl } = this.context;
-    const { vao, mode, offset, numElements, indices, programInfo } = renderInfo;
+
     const worldViewProjection = m4.multiply(
       viewProjectionMatrix,
       uniforms.u_matrix

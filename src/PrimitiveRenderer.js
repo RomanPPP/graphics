@@ -1,61 +1,61 @@
-import {
-  createIndicesBuffer,
-  BufferAttribute,
-  DynamicBufferAttribDescriptor,
-  BufferController,
-  AttributeSetter,
-} from "./BufferAttribute";
+import { BufferAttribute } from "./BufferAttribute";
 import { ELEMENT_SIZE } from "./enums";
-import { getGLTypeForTypedArray } from "./programInfo";
+
 import getAttributePropsByType from "./attribTypeProps";
 
 class PrimitiveRenderer {
-  constructor(arrayData) {
+  constructor(gl, arrayData) {
     this.buffers = {};
     this.programInfo = null;
-    this.context = null;
+    this.gl = gl;
     this.drawer = null;
     this.mode = null;
     this.offset = null;
     this.numElements = null;
     this.vao = null;
     this.componentType = null;
+
+    if (arrayData) {
+      this.createVAO().createGeometryBuffers(arrayData).setAttributes();
+    }
     this.arrayData = arrayData;
-    const {componentType, numElements, mode } = arrayData;
-    this.numElements = numElements;
-    this.mode = mode;
-    this.componentType = componentType || 5123;
   }
-  setContext(glContextWrapper) {
-    this.context = glContextWrapper;
+  setContext(gl) {
+    this.gl = gl;
     return this;
   }
   createVAO() {
-    if (this.vao) return;
-    this.vao = this.context.gl.createVertexArray();
+    if (this.vao) return this;
+    this.vao = this.gl.createVertexArray();
     return this;
   }
-  setMode(mode){
-    this.mode = mode
-    return this
+  setMode(mode) {
+    this.mode = mode;
+    return this;
   }
-  setIndices(array){
-    const {context, vao} = this
-    const {gl} = context
-    gl.bindVertexArray(vao)
-    this.numElements = array.length
+  setIndices(array) {
+    const { gl, vao } = this;
+
+    gl.bindVertexArray(vao);
+    this.numElements = array.length;
     const indicesBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(array),  gl.STATIC_DRAW);
-    gl.bindVertexArray(null)
+    gl.bufferData(
+      gl.ELEMENT_ARRAY_BUFFER,
+      new Uint16Array(array),
+      gl.STATIC_DRAW
+    );
+    gl.bindVertexArray(null);
     this.indices = indicesBuffer;
-    return this
+    return this;
   }
-  createGeometryBuffers() {
-    const { arrayData } = this;
-    const { gl } = this.context;
+  createGeometryBuffers(arrayData) {
+    const { gl } = this;
+
     const { attributes, indices, componentType, numElements, mode } = arrayData;
-   
+    this.numElements = numElements;
+    this.mode = mode;
+    this.componentType = componentType || 5123;
 
     if (attributes) {
       Object.keys(attributes).forEach((attributeName) => {
@@ -94,7 +94,7 @@ class PrimitiveRenderer {
     return this;
   }
   setAttributes() {
-    const { gl } = this.context;
+    const { gl } = this;
 
     gl.bindVertexArray(this.vao);
     for (const attrib in this.buffers) {
@@ -115,7 +115,7 @@ class PrimitiveRenderer {
     return this;
   }
   createBufferAttribData(name, type, params) {
-    const { gl } = this.context;
+    const { gl } = this;
     const attribProps = getAttributePropsByType(type);
     const attributeProps = { ...attribProps, ...params };
     const bufferAttribData = new BufferAttribute(gl, attributeProps);
@@ -126,16 +126,16 @@ class PrimitiveRenderer {
     this.buffers = { ...this.buffers, [name]: bufferAttribData };
     return this;
   }
-  setOwnAttribute(name, divisor) {
-    const { gl } = this.context;
+  setAttribute(name, divisor) {
+    const { gl } = this;
     const bufferAttribData = this.buffers[name];
     gl.bindVertexArray(this.vao);
     bufferAttribData.setAttribute(divisor);
     gl.bindVertexArray(null);
     return this;
   }
-  setAttribute(bufferAttribData) {
-    const { gl } = this.context;
+  _setAttribute(bufferAttribData) {
+    const { gl } = this;
     gl.bindVertexArray(this.vao);
     bufferAttribData.setAttribute();
     gl.bindVertexArray(null);

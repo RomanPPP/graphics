@@ -4,7 +4,7 @@ import {
   ArrayDataFromGltf,
   EntityDataFromGltf,
   GLTF,
-} from "./src/gltfUtils";
+} from "./src/GltfUtils";
 import { MeshRenderer, SkinnedMeshRenderer } from "./src/MeshRenderer";
 import {
   createBox,
@@ -12,19 +12,19 @@ import {
   createCircle,
   createSphere,
   createTruncatedCone
-} from "./src/primitives";
+} from "./src/Primitives";
 import PrimitiveRenderer from "./src/PrimitiveRenderer";
 import {
   getGLTypeForTypedArray,
   ProgramInfo,
   expandedTypedArray,
-} from "./src/programInfo";
+} from "./src/ProgramInfo";
 import Drawer from "./src/Drawer";
 import {
   TextureInfo,
   makeImgFromSvgXml,
   makeStripeImg,
-} from "./src/textureInfo";
+} from "./src/TextureInfo";
 import Model from "./src/Model";
 import { defaultShaders, pointLightShaders } from "./src/render/shaders";
 import GLcontextWrapper from "./src/glContexWrapper";
