@@ -1,4 +1,4 @@
-#version 300 es
+export default `#version 300 es
 precision highp float;
  
 
@@ -35,4 +35,4 @@ void main() {
 
   outColor.rgb += u_ambientLight.rgb *0.3;
   
-}
+}`

@@ -1,4 +1,4 @@
-#version 300 es
+export default `#version 300 es
 
 precision highp float;
 
@@ -9,4 +9,4 @@ layout(location = 0) in vec4 a_position;
 void main() {
   gl_Position = u_worldViewProjection * a_position;
   gl_PointSize = 10.0;
-}
+}`

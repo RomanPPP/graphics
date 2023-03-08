@@ -19,11 +19,13 @@ webpack.config.js
 main.js
 textureShaders.js
 src/render/svg/
-src/skin.js
-src/GltfUtils.js
-src/Model.js
-
+src/components/skin.js
+src/components/GltfUtils.js
+src/components/Model.js
+src/components/MeshRenderer.js
+src/components/attribTypeProps.js
+src/components/misc.js
 index.html
-
+lib
 
 dist

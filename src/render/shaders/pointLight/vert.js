@@ -1,4 +1,4 @@
-#version 300 es
+export default`#version 300 es
  
 layout(location = 0) in vec4 a_position;
 layout(location = 1) in vec3 a_normal;
@@ -24,4 +24,4 @@ void main() {
     
     v_surfaceToView = u_viewWorldPosition - surfaceWorldPosition;
       
-}
+}`

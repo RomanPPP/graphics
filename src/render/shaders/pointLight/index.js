@@ -1,4 +1,4 @@
-import vert from './vert.glsl'
-import frag from './frag.glsl'
+import vert from './vert.js'
+import frag from './frag.js'
 
 export default {vert, frag}

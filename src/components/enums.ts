@@ -1,0 +1,136 @@
+const TYPED_ARRAYS: {
+  [id: number]:
+    | Int8ArrayConstructor
+    | Uint8ArrayConstructor
+    | Int16ArrayConstructor
+    | Uint16ArrayConstructor
+    | Int32ArrayConstructor
+    | Uint32ArrayConstructor
+    | Float32ArrayConstructor;
+} = {
+  5120: Int8Array,
+  5121: Uint8Array,
+  5122: Int16Array,
+  5123: Uint16Array,
+  5124: Int32Array,
+  5125: Uint32Array,
+  5126: Float32Array,
+};
+const NUM_COMPONENTS = {
+  SCALAR: 1,
+  VEC2: 2,
+  VEC3: 3,
+  VEC4: 4,
+  MAT2: 4,
+  MAT3: 9,
+  MAT4: 16,
+};
+const LOCATIONS = {
+  POSITION: 0,
+  NORMAL: 1,
+  WEIGHTS_0: 2,
+  JOINTS_0: 3,
+  TEXCOORD_0: 4,
+};
+const ELEMENT_SIZE = {
+  0x1406: 4,
+};
+const TEXTURE0 = 0x84c0;
+const DYNAMIC_DRAW = 0x88e8;
+
+const ARRAY_BUFFER = 0x8892;
+const ELEMENT_ARRAY_BUFFER = 0x8893;
+const UNIFORM_BUFFER = 0x8a11;
+const TRANSFORM_FEEDBACK_BUFFER = 0x8c8e;
+
+const TRANSFORM_FEEDBACK = 0x8e22;
+
+const COMPILE_STATUS = 0x8b81;
+const LINK_STATUS = 0x8b82;
+const FRAGMENT_SHADER = 0x8b30;
+const VERTEX_SHADER = 0x8b31;
+const SEPARATE_ATTRIBS = 0x8c8d;
+
+const ACTIVE_UNIFORMS = 0x8b86;
+const ACTIVE_ATTRIBUTES = 0x8b89;
+const TRANSFORM_FEEDBACK_VARYINGS = 0x8c83;
+const ACTIVE_UNIFORM_BLOCKS = 0x8a36;
+const UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER = 0x8a44;
+const UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER = 0x8a46;
+const UNIFORM_BLOCK_DATA_SIZE = 0x8a40;
+const UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES = 0x8a43;
+
+const FLOAT = 0x1406;
+const FLOAT_VEC2 = 0x8b50;
+const FLOAT_VEC3 = 0x8b51;
+const FLOAT_VEC4 = 0x8b52;
+const INT = 0x1404;
+const INT_VEC2 = 0x8b53;
+const INT_VEC3 = 0x8b54;
+const INT_VEC4 = 0x8b55;
+const BOOL = 0x8b56;
+const BOOL_VEC2 = 0x8b57;
+const BOOL_VEC3 = 0x8b58;
+const BOOL_VEC4 = 0x8b59;
+const FLOAT_MAT2 = 0x8b5a;
+const FLOAT_MAT3 = 0x8b5b;
+const FLOAT_MAT4 = 0x8b5c;
+const SAMPLER_2D = 0x8b5e;
+const SAMPLER_CUBE = 0x8b60;
+const SAMPLER_3D = 0x8b5f;
+const SAMPLER_2D_SHADOW = 0x8b62;
+const FLOAT_MAT2x3 = 0x8b65;
+const FLOAT_MAT2x4 = 0x8b66;
+const FLOAT_MAT3x2 = 0x8b67;
+const FLOAT_MAT3x4 = 0x8b68;
+const FLOAT_MAT4x2 = 0x8b69;
+const FLOAT_MAT4x3 = 0x8b6a;
+const SAMPLER_2D_ARRAY = 0x8dc1;
+const SAMPLER_2D_ARRAY_SHADOW = 0x8dc4;
+const SAMPLER_CUBE_SHADOW = 0x8dc5;
+const UNSIGNED_INT = 0x1405;
+const UNSIGNED_INT_VEC2 = 0x8dc6;
+const UNSIGNED_INT_VEC3 = 0x8dc7;
+const UNSIGNED_INT_VEC4 = 0x8dc8;
+const INT_SAMPLER_2D = 0x8dca;
+const INT_SAMPLER_3D = 0x8dcb;
+const INT_SAMPLER_CUBE = 0x8dcc;
+const INT_SAMPLER_2D_ARRAY = 0x8dcf;
+const UNSIGNED_INT_SAMPLER_2D = 0x8dd2;
+const UNSIGNED_INT_SAMPLER_3D = 0x8dd3;
+const UNSIGNED_INT_SAMPLER_CUBE = 0x8dd4;
+const UNSIGNED_INT_SAMPLER_2D_ARRAY = 0x8dd7;
+
+const TEXTURE_2D = 0x0de1;
+const TEXTURE_CUBE_MAP = 0x8513;
+const TEXTURE_3D = 0x806f;
+const TEXTURE_2D_ARRAY = 0x8c1a;
+
+export {};
+export {
+  LOCATIONS,
+  NUM_COMPONENTS,
+  TYPED_ARRAYS,
+  ELEMENT_SIZE,
+  FLOAT,
+  FLOAT_MAT2,
+  FLOAT_MAT2x3,
+  FLOAT_MAT4,
+  FLOAT_MAT2x4,
+  UNSIGNED_INT,
+  FLOAT_MAT3,
+  UNSIGNED_INT_VEC2,
+  UNSIGNED_INT_VEC3,
+  UNSIGNED_INT_VEC4,
+  FLOAT_VEC2,
+  FLOAT_VEC3,
+  FLOAT_VEC4,
+  INT,
+  INT_VEC2,
+  INT_VEC3,
+  INT_VEC4,
+  BOOL,
+  BOOL_VEC2,
+  BOOL_VEC3,
+  BOOL_VEC4
+};

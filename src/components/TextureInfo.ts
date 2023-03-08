@@ -1,4 +1,4 @@
-const setCanvasSize = (ctx, width, height) => {
+/*const setCanvasSize = (ctx, width, height) => {
   ctx.canvas.width = width;
   ctx.canvas.height = height;
 };
@@ -72,23 +72,25 @@ const makeImgFromSvgXml = (xml, options = {}) => {
   ctx.fillRect(0, 0, width, height);
   return ctx.img;
 };
-
-const requestCORSIfNotSameOrigin = (img, url) => {
+*/
+const requestCORSIfNotSameOrigin = (img : HTMLImageElement, url : string) => {
   if (new URL(url, window.location.href).origin !== window.location.origin) {
     img.crossOrigin = "";
   }
 };
-
 class TextureInfo {
-  static makeImgFromSvgXml = makeImgFromSvgXml;
-  constructor(gl, numFacesX, numFacesY) {
-    this.numFacesX = numFacesX
-    this.numFacesY = numFacesY
+  //static makeImgFromSvgXml = makeImgFromSvgXml;
+  gl : WebGL2RenderingContext
+  width : number
+  height : number
+  texture : WebGLTexture
+  constructor(gl : WebGL2RenderingContext) {
+   
     this.width = null
     this.height = null
     this.gl = gl;
   }
-  createTextureFromURL(url, ) {
+  createTextureFromURL(url : string ) {
     const { gl } = this;
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -107,7 +109,7 @@ class TextureInfo {
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    var img = new Image();
+    const img = new Image();
     img.addEventListener("load", function () {
       this.width = img.width
       this.height = img.height
@@ -117,10 +119,10 @@ class TextureInfo {
     });
     requestCORSIfNotSameOrigin(img, url);
     img.src = url;
-
+    this.texture = texture
     return texture;
   }
-  setTextureUnit(unitNum) {
+  setTextureUnit(unitNum : number) {
     const {gl, texture } = this
 
     gl.activeTexture(gl.TEXTURE0 + unitNum);
@@ -128,4 +130,4 @@ class TextureInfo {
     return this;
   }
 }
-export { makeImgFromSvgXml, makeStripeImg, TextureInfo };
+export {  TextureInfo };

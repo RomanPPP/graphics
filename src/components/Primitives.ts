@@ -1,8 +1,9 @@
-import { expandedTypedArray } from "./misc";
 
-import {vec3} from 'math'
+import IArrayData from "../models/IArrayData";
+import {v3} from 'romanpppmath'
+import { FLOAT_VEC2, FLOAT_VEC3 } from "./enums";
 
-const { cross, diff, normalize } = vec3
+const { cross, diff, normalize } = v3
 
 const linedBoxIndices = new Uint16Array([
   0,
@@ -64,7 +65,7 @@ const CUBE_FACE_INDICES = [
   [2, 3, 1, 0], // back
 ];
 
-function createBox(_a = 1, _b = 1, _c = 1) {
+function createBox(_a = 1, _b = 1, _c = 1) : IArrayData{
   const a = _a / 2,
     b = _b / 2,
     c = _c / 2;
@@ -94,26 +95,24 @@ function createBox(_a = 1, _b = 1, _c = 1) {
     [0, 1],
     [1, 1],
   ];
-  const numVertices = 6 * 4;
-  const positions = expandedTypedArray(new Float32Array(numVertices * 3));
-  const normals = expandedTypedArray(new Float32Array(numVertices * 3));
+  const positions = []
+  const normals = []
   //const texCoords = webglUtils.createAugmentedTypedArray(2 , numVertices);
-  const indices = expandedTypedArray(new Uint16Array(6 * 2 * 3));
+  const indices = []
 
   for (let f = 0; f < 6; ++f) {
     const faceIndices = CUBE_FACE_INDICES[f];
     for (let v = 0; v < 4; ++v) {
       const position = cornerVertices[faceIndices[v]];
       const normal = faceNormals[f];
-      positions.push(position);
-      normals.push(normal);
+      positions.push(...position);
+      normals.push(...normal);
     }
 
     const offset = 4 * f;
     indices.push(offset + 0, offset + 1, offset + 2);
     indices.push(offset + 0, offset + 2, offset + 3);
   }
-  const len = positions.byteLength;
   const texcoord = new Float32Array([
     // Front
     0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
@@ -128,42 +127,48 @@ function createBox(_a = 1, _b = 1, _c = 1) {
     // Left
     0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
   ]);
-
+  const _normals = new Float32Array(normals);
+  const _positions = new Float32Array(positions);
+  const _indices = new Uint16Array(indices);
+  const _texcoords = new Float32Array(texcoord);
   const ArrayData = {
     attributes: {
       NORMAL: {
-        data: normals,
+        data: _normals,
         count: 6 * 4 * 3,
         location: 1,
-        byteLength: normals.byteLength,
+        byteLength: _normals.byteLength,
         stride: 0,
         offset: 0,
         numComponents: 3,
         type: 5126,
+        attributeType : FLOAT_VEC3
       },
       POSITION: {
-        data: positions,
+        data: _positions,
         count: 6 * 4 * 3,
         location: 0,
-        byteLength: positions.byteLength,
+        byteLength: _positions.byteLength,
         stride: 0,
         offset: 0,
         numComponents: 3,
         type: 5126,
+        attributeType : FLOAT_VEC3
       },
       TEXCOORD_0: {
-        data: texcoord,
+        data: _texcoords,
         count: 48,
         type: 5126,
         offset: 0,
         stride: 0,
-        byteLength: texcoord.byteLength,
+        byteLength: _texcoords.byteLength,
         location: 4,
         numComponents: 2,
+        attributeType : FLOAT_VEC2
       },
     },
-    indices: indices,
-    numElements: indices.length,
+    indices: _indices,
+    numElements: _indices.length,
     componentType: 5123,
     mode: 4,
   };
@@ -257,7 +262,7 @@ function createBox(_a = 1, _b = 1, _c = 1) {
       };*/
 }
 
-const createCone = (radius = 2, height = 2, numCorners = 4) => {
+const createCone = (radius = 2, height = 2, numCorners = 4) : IArrayData => {
   const vertices = [0, -height / 2, 0];
   const normals = [];
   const indices = [];
@@ -283,9 +288,9 @@ const createCone = (radius = 2, height = 2, numCorners = 4) => {
     const x = Math.cos(angle) * radius;
     const z = Math.sin(angle) * radius;
     const y = -height / 2;
-    const a = [vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]];
-    const b = [vertices[i * 3 + 3], vertices[i * 3 + 4], vertices[i * 3 + 5]];
-    const c = [0, height / 2, 0];
+    const a = [vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]] as [number, number, number];
+    const b = [vertices[i * 3 + 3], vertices[i * 3 + 4], vertices[i * 3 + 5]] as [number, number, number];
+    const c = [0, height / 2, 0] as [number, number, number];
     indices.push(
       start + i * stride + 2,
       start + i * stride + 1,
@@ -310,6 +315,7 @@ const createCone = (radius = 2, height = 2, numCorners = 4) => {
         type: 5126,
         data: _position,
         byteLength: _position.byteLength,
+        attributeType : FLOAT_VEC3
       },
       NORMAL: {
         location: 1,
@@ -320,6 +326,7 @@ const createCone = (radius = 2, height = 2, numCorners = 4) => {
         type: 5126,
         data: _normal,
         byteLength: _normal.byteLength,
+        attributeType : FLOAT_VEC3
       },
     },
     componentType: 5123,
@@ -330,7 +337,7 @@ const createCone = (radius = 2, height = 2, numCorners = 4) => {
   return ArrayData;
 };
 
-const createCircle = (radius, numCorners) => {
+const createCircle = (radius : number, numCorners : number) : IArrayData => {
   const vertices = [0, 0, 0];
   const normals = [];
   const indices = [];
@@ -362,6 +369,7 @@ const createCircle = (radius, numCorners) => {
         type: 5126,
         data: _position,
         byteLength: _position.byteLength,
+        attributeType : FLOAT_VEC3
       },
       NORMAL: {
         location: 1,
@@ -372,6 +380,7 @@ const createCircle = (radius, numCorners) => {
         type: 5126,
         data: _normal,
         byteLength: _normal.byteLength,
+        attributeType : FLOAT_VEC3
       },
     },
     componentType: 5123,
@@ -383,14 +392,14 @@ const createCircle = (radius, numCorners) => {
 };
 
 const createSphere = (
-  radius,
-  subdivisionsAxis,
-  subdivisionsHeight,
-  opt_startLatitudeInRadians,
-  opt_endLatitudeInRadians,
-  opt_startLongitudeInRadians,
-  opt_endLongitudeInRadians
-) => {
+  radius : number,
+  subdivisionsAxis : number,
+  subdivisionsHeight : number,
+  opt_startLatitudeInRadians? : number,
+  opt_endLatitudeInRadians? : number,
+  opt_startLongitudeInRadians? : number,
+  opt_endLongitudeInRadians? : number
+) : IArrayData => {
   if (subdivisionsAxis <= 0 || subdivisionsHeight <= 0) {
     throw new Error("subdivisionAxis and subdivisionHeight must be > 0");
   }
@@ -458,6 +467,7 @@ const createSphere = (
         type: 5126,
         data: _positions,
         byteLength: _positions.byteLength,
+        attributeType : FLOAT_VEC3
       },
       NORMAL: {
         location: 1,
@@ -468,6 +478,7 @@ const createSphere = (
         type: 5126,
         data: _normals,
         byteLength: _normals.byteLength,
+        attributeType : FLOAT_VEC3
       },
       TEXCOORD_0: {
         data: _texcoords,
@@ -478,6 +489,7 @@ const createSphere = (
         byteLength: _texcoords.byteLength,
         location: 4,
         numComponents: 2,
+        attributeType : FLOAT_VEC2
       },
     },
     componentType: 5123,
@@ -487,14 +499,14 @@ const createSphere = (
   };
 };
 const createTruncatedCone = (
-  bottomRadius,
-  topRadius,
-  height,
-  radialSubdivisions,
-  verticalSubdivisions,
-  opt_topCap,
-  opt_bottomCap
-) => {
+  bottomRadius: number,
+  topRadius : number,
+  height : number,
+  radialSubdivisions : number,
+  verticalSubdivisions : number,
+  opt_topCap : number,
+  opt_bottomCap : number
+) : IArrayData => {
   if (radialSubdivisions < 3) {
     throw new Error("radialSubdivisions must be 3 or greater");
   }
@@ -597,6 +609,7 @@ const createTruncatedCone = (
         type: 5126,
         data: _positions,
         byteLength: _positions.byteLength,
+        attributeType : FLOAT_VEC3
       },
       NORMAL: {
         location: 1,
@@ -607,6 +620,7 @@ const createTruncatedCone = (
         type: 5126,
         data: _normals,
         byteLength: _normals.byteLength,
+        attributeType : FLOAT_VEC3
       },
       TEXCOORD_0: {
         data: _texcoords,
@@ -617,6 +631,7 @@ const createTruncatedCone = (
         byteLength: _texcoords.byteLength,
         location: 4,
         numComponents: 2,
+        attributeType : FLOAT_VEC2
       },
     },
     componentType: 5123,

@@ -1,12 +1,25 @@
-function createUniformSetters(gl, program) {
-  const createTextureSetter = (program, uniformInfo) => {
+import IGLWrapper from "../models/IGLWrapper";
+import IProgramInfo from "../models/IProgramInfo";
+import GLcontextWrapper from "./GLWrapper";
+
+function createUniformSetters(
+  gl: WebGL2RenderingContext,
+  program: WebGLProgram
+) {
+  const createTextureSetter = (
+    program: WebGLProgram,
+    uniformInfo: WebGLActiveInfo
+  ) => {
     const location = gl.getUniformLocation(program, uniformInfo.name);
 
-    return (texBlockNum) => {
+    return (texBlockNum: number) => {
       gl.uniform1i(location, texBlockNum);
     };
   };
-  function createUniformSetter(program, uniformInfo) {
+  function createUniformSetter(
+    program: WebGLProgram,
+    uniformInfo: WebGLActiveInfo
+  ) {
     const location = gl.getUniformLocation(program, uniformInfo.name);
 
     const type = uniformInfo.type;
@@ -15,93 +28,93 @@ function createUniformSetters(gl, program) {
       uniformInfo.size > 1 && uniformInfo.name.substr(-3) === "[0]";
 
     if (type === gl.FLOAT && isArray) {
-      return function (v) {
+      return function (v: number[]) {
         gl.uniform1fv(location, v);
       };
     }
     if (type === gl.FLOAT) {
-      return function (v) {
+      return function (v: number) {
         gl.uniform1f(location, v);
       };
     }
     if (type === gl.FLOAT_VEC2) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniform2fv(location, v);
       };
     }
     if (type === gl.FLOAT_VEC3) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniform3fv(location, v);
       };
     }
     if (type === gl.FLOAT_VEC4) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniform4fv(location, v);
       };
     }
     if (type === gl.INT && isArray) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniform1iv(location, v);
       };
     }
     if (type === gl.INT) {
-      return function (v) {
+      return function (v: number) {
         gl.uniform1i(location, v);
       };
     }
     if (type === gl.INT_VEC2) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniform2iv(location, v);
       };
     }
     if (type === gl.INT_VEC3) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniform3iv(location, v);
       };
     }
     if (type === gl.INT_VEC4) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniform4iv(location, v);
       };
     }
     if (type === gl.BOOL) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniform1iv(location, v);
       };
     }
     if (type === gl.BOOL_VEC2) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniform2iv(location, v);
       };
     }
     if (type === gl.BOOL_VEC3) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniform3iv(location, v);
       };
     }
     if (type === gl.BOOL_VEC4) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniform4iv(location, v);
       };
     }
     if (type === gl.FLOAT_MAT2) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniformMatrix2fv(location, false, v);
       };
     }
     if (type === gl.FLOAT_MAT3) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniformMatrix3fv(location, false, v);
       };
     }
     if (type === gl.FLOAT_MAT4) {
-      return function (v) {
+      return function (v: Iterable<number>) {
         gl.uniformMatrix4fv(location, false, v);
       };
     }
   }
-  const uniformSetters = {};
-  const textureSetters = {};
+  const uniformSetters: { [id: string]: (arg: Object) => void } = {};
+  const textureSetters: { [id: string]: (arg: Object) => void } = {};
   const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
 
   for (let ii = 0; ii < numUniforms; ++ii) {
@@ -135,39 +148,56 @@ function createUniformSetters(gl, program) {
   return { uniformSetters, textureSetters };
 }
 
-class ProgramInfo {
-  constructor(context, vs, fs) {
-    this.vs = vs;
-    this.fs = fs;
-    this.VAO = null;
+class ProgramInfo implements IProgramInfo{
+  vertexShaderSource: string;
+  fragmentShaderSource: string;
+  uniformSetters: { [id: string]: (arg: Object) => void };
+  textureSetters: { [id: string]: (arg: Object) => void };
+  fragmentShader: WebGLShader;
+  vertexShader: WebGLShader;
+  program: WebGLProgram;
+  glWrapper: IGLWrapper;
+  gl: WebGL2RenderingContext;
+
+  constructor(
+    glWrapper: GLcontextWrapper,
+    vertexShaderSource: string,
+    fragmentShaderSource: string
+  ) {
+    this.vertexShaderSource = vertexShaderSource;
+    this.fragmentShaderSource = fragmentShaderSource;
+
     this.uniformSetters = null;
+    this.textureSetters = null;
     this.vertexShader = null;
     this.fragmentShader = null;
     this.program = null;
-    this.context = context;
+    this.glWrapper = glWrapper;
   }
- 
+
   createUniformSetters() {
-    const { gl } = this.context;
+    const { glWrapper, program } = this;
+    const { gl } = glWrapper;
     const { uniformSetters, textureSetters } = createUniformSetters(
       gl,
-      this.program
+      program
     );
     this.textureSetters = textureSetters;
     this.uniformSetters = uniformSetters;
     return this;
   }
   compileShaders() {
-    const { gl } = this.context;
+    const { glWrapper, fragmentShaderSource, vertexShaderSource } = this;
+    const { gl } = glWrapper;
     this.vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(this.vertexShader, this.vs);
+    gl.shaderSource(this.vertexShader, vertexShaderSource);
     gl.compileShader(this.vertexShader);
     if (!gl.getShaderParameter(this.vertexShader, gl.COMPILE_STATUS)) {
       throw new Error(gl.getShaderInfoLog(this.vertexShader));
     }
 
     this.fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(this.fragmentShader, this.fs);
+    gl.shaderSource(this.fragmentShader, fragmentShaderSource);
     gl.compileShader(this.fragmentShader);
     if (!gl.getShaderParameter(this.fragmentShader, gl.COMPILE_STATUS)) {
       throw new Error(gl.getShaderInfoLog(this.fragmentShader));
@@ -182,17 +212,19 @@ class ProgramInfo {
     }
     return this;
   }
-  setUniforms(uniforms) {
-    this.context.useProgramInfo(this);
+  setUniforms(uniforms: { [key: string]: Iterable<number> | number }) {
+    const { uniformSetters, glWrapper } = this;
+    glWrapper.useProgramInfo(this);
     Object.keys(uniforms).forEach((name) => {
-      const setter = this.uniformSetters[name];
+      const setter = uniformSetters[name];
       if (setter) setter(uniforms[name]);
     });
     return this;
   }
-  setTextureUniformUnit(name, unit) {
-    this.context.useProgramInfo(this);
-    const setter = this.textureSetters[name];
+  setTextureUniformUnit(name: string, unit: number) {
+    const { textureSetters, glWrapper } = this;
+    glWrapper.useProgramInfo(this);
+    const setter = textureSetters[name];
     if (setter) setter(unit);
     return this;
   }
