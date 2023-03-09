@@ -107,8 +107,7 @@ class TextureInfo {
       new Uint8Array([0, 0, 255, 255])
     );
 
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
     const img = new Image();
     img.addEventListener("load", function () {
       this.width = img.width

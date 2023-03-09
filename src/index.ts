@@ -26,7 +26,7 @@ import {
 import Model from "./components/Model";
 import { defaultShaders, pointLightShaders } from "./render/shaders";
 import GLcontextWrapper from "./components/GLWrapper";
-
+import IArrayData from "./models/IArrayData";
 
 export {
   GLTF,
@@ -48,5 +48,6 @@ export {
   defaultShaders,
   pointLightShaders,
   createSphere,
-  createTruncatedCone
+  createTruncatedCone,
+  IArrayData
 };
