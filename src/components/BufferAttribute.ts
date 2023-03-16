@@ -77,9 +77,9 @@ const matAttribSetter = ({
     gl.vertexAttribPointer(
       location,
       numComponents,
-      type || gl.FLOAT,
-      normalize || false,
-      stride || 0,
+      type | gl.FLOAT,
+      false,
+      stride | 0,
       offset + rowOffset * i
     );
     gl.vertexAttribDivisor(location + i, divisor || 0);
@@ -167,10 +167,10 @@ class BufferAttributeInfo implements IBufferAttributeInfo {
   }) {
     this.gl = gl;
     this.buffer = gl.createBuffer();
-    this.stride = stride
+    this.stride = stride | 0
     this.numComponents = numComponents;
     this.attributeType = attributeType;
-    this.offset = offset
+    this.offset = offset | 0
     this.type = type;
     this.location = location;
     this.divisor = divisor;

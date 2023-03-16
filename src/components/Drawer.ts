@@ -66,6 +66,7 @@ class Drawer {
     gl.bindVertexArray(VAO);
 
     if (!indices) {
+     
       gl.drawArrays(mode, offset, numElements);
       return;
     }

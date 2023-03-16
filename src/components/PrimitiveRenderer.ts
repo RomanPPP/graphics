@@ -26,7 +26,7 @@ class PrimitiveRenderer implements IPrimitiveRenderer {
     this.gl = gl;
     this.drawer = null;
     this.mode = null;
-    this.offset = null;
+    this.offset = 0;
     this.numElements = null;
     this.VAO = null;
     this.componentType = null;
@@ -45,6 +45,14 @@ class PrimitiveRenderer implements IPrimitiveRenderer {
     this.mode = mode;
     return this;
   }
+  setNumElements(numElements : number){
+    this.numElements = numElements
+    return this
+  }
+  setOffset(offset : number){
+    this.offset = offset
+    return this
+  }
   setIndices(arrayBuffer: Uint16Array) {
     const { gl, VAO } = this;
 
@@ -60,11 +68,11 @@ class PrimitiveRenderer implements IPrimitiveRenderer {
   createGeometryBuffers(arrayData: IArrayData) {
     const { gl } = this;
 
-    const { attributes, indices, componentType, numElements, mode } = arrayData;
+    const { attributes, indices, componentType, numElements, mode, offset } = arrayData;
     this.numElements = numElements;
     this.mode = mode;
     this.componentType = componentType || 5123;
-
+    this.offset = 0
     if (attributes) {
       (Object.keys(attributes) as Array<keyof typeof attributes>).forEach(
         (attributeName) => {

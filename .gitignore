@@ -27,5 +27,6 @@ src/components/attribTypeProps.js
 src/components/misc.js
 index.html
 lib
+tsconfig.json
 
 dist
